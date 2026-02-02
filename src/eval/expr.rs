@@ -14,7 +14,7 @@ impl Engine {
     #[cfg(not(feature = "no_module"))]
     #[inline]
     #[must_use]
-    pub(crate) fn search_imports(
+    pub  fn search_imports(
         &self,
         global: &GlobalRuntimeState,
         namespace: &crate::ast::Namespace,
@@ -45,7 +45,7 @@ impl Engine {
     /// # Panics
     ///
     /// Panics if `expr` is not [`Expr::Variable`].
-    pub(crate) fn search_scope_only<'s>(
+    pub  fn search_scope_only<'s>(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -160,7 +160,7 @@ impl Engine {
     }
     /// Search for a variable within the scope or within imports,
     /// depending on whether the variable name is namespace-qualified.
-    pub(crate) fn search_namespace<'s>(
+    pub  fn search_namespace<'s>(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -230,7 +230,7 @@ impl Engine {
         }
     }
     /// Evaluate an expression.
-    pub(crate) fn eval_expr(
+    pub  fn eval_expr(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,

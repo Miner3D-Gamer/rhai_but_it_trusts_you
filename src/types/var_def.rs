@@ -53,7 +53,7 @@ impl<'a> VarDefInfo<'a> {
     /// Create a new [`VarDefInfo`].
     #[inline(always)]
     #[must_use]
-    pub(crate) const fn new(
+    pub  const fn new(
         name: &'a str,
         is_const: bool,
         nesting_level: usize,

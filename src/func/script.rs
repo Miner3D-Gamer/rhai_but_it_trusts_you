@@ -21,7 +21,7 @@ impl Engine {
     /// All function arguments not in the first position are always passed by value and thus consumed.
     ///
     /// **DO NOT** reuse the argument values except for the first `&mut` argument - all others are silently replaced by `()`!
-    pub(crate) fn call_script_fn(
+    pub  fn call_script_fn(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -214,7 +214,7 @@ impl Engine {
     ///
     /// If the scripted function is not found, this information is cached for future look-ups.
     #[must_use]
-    pub(crate) fn has_script_fn(
+    pub  fn has_script_fn(
         &self,
         global: &GlobalRuntimeState,
         caches: &mut Caches,

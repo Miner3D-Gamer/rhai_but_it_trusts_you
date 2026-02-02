@@ -45,7 +45,7 @@ mod unchecked {
     impl Engine {
         /// Check if the number of operations stay within limit.
         #[inline(always)]
-        pub(crate) const fn track_operation(
+        pub  const fn track_operation(
             &self,
             _: &GlobalRuntimeState,
             _: Position,
@@ -55,7 +55,7 @@ mod unchecked {
 
         /// Check whether the size of a [`Dynamic`] is within limits.
         #[inline(always)]
-        pub(crate) const fn check_data_size<T: Borrow<Dynamic>>(
+        pub  const fn check_data_size<T: Borrow<Dynamic>>(
             &self,
             value: T,
             _: Position,

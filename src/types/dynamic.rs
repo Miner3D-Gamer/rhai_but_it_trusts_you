@@ -52,7 +52,7 @@ const DEFAULT_TAG_VALUE: Tag = 0;
 
 /// Dynamic type containing any value.
 #[must_use]
-pub struct Dynamic(pub(crate) Union);
+pub struct Dynamic(pub  Union);
 
 /// Internal [`Dynamic`] representation.
 ///
@@ -1077,7 +1077,7 @@ impl Dynamic {
 
     /// Get the [`AccessMode`] for this [`Dynamic`].
     #[must_use]
-    pub(crate) const fn access_mode(&self) -> AccessMode {
+    pub  const fn access_mode(&self) -> AccessMode {
         match self.0 {
             Union::Unit(.., access)
             | Union::Bool(.., access)
@@ -1102,7 +1102,7 @@ impl Dynamic {
         }
     }
     /// Set the [`AccessMode`] for this [`Dynamic`].
-    pub(crate) fn set_access_mode(&mut self, typ: AccessMode) -> &mut Self {
+    pub  fn set_access_mode(&mut self, typ: AccessMode) -> &mut Self {
         match self.0 {
             Union::Unit(.., ref mut access)
             | Union::Bool(.., ref mut access)
@@ -1199,7 +1199,7 @@ impl Dynamic {
     ///
     /// These normally shouldn't occur since most operations in Rhai are single-threaded.
     #[must_use]
-    pub(crate) fn is_hashable(&self) -> bool {
+    pub  fn is_hashable(&self) -> bool {
         match self.0 {
             Union::Unit(..)
             | Union::Bool(..)
@@ -1856,7 +1856,7 @@ impl Dynamic {
     /// Returns [`None`] also if the value is _shared_.
     #[inline]
     #[must_use]
-    pub(crate) fn downcast_ref<T: Any + Clone>(&self) -> Option<&T> {
+    pub  fn downcast_ref<T: Any + Clone>(&self) -> Option<&T> {
         // Coded this way in order to maximally leverage potentials for dead-code removal.
 
         if TypeId::of::<T>() == TypeId::of::<INT>() {
@@ -1959,7 +1959,7 @@ impl Dynamic {
     /// Returns [`None`] also if the value is _shared_.
     #[inline]
     #[must_use]
-    pub(crate) fn downcast_mut<T: Any + Clone>(&mut self) -> Option<&mut T> {
+    pub  fn downcast_mut<T: Any + Clone>(&mut self) -> Option<&mut T> {
         // Coded this way in order to maximally leverage potentials for dead-code removal.
 
         if TypeId::of::<T>() == TypeId::of::<INT>() {

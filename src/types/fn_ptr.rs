@@ -53,14 +53,14 @@ impl fmt::Display for FnPtrType {
 #[derive(Clone)]
 pub struct FnPtr {
     /// Name of the function.
-    pub(crate) name: ImmutableString,
+    pub  name: ImmutableString,
     /// Curried arguments.
-    pub(crate) curry: ThinVec<Dynamic>,
+    pub  curry: ThinVec<Dynamic>,
     /// Encapsulated environment.
     #[cfg(not(feature = "no_function"))]
-    pub(crate) env: Option<Shared<crate::ast::EncapsulatedEnviron>>,
+    pub  env: Option<Shared<crate::ast::EncapsulatedEnviron>>,
     /// Type of function pointer.
-    pub(crate) typ: FnPtrType,
+    pub  typ: FnPtrType,
 }
 
 impl fmt::Display for FnPtr {
@@ -164,7 +164,7 @@ impl FnPtr {
     /// Get the name of the function.
     #[inline(always)]
     #[must_use]
-    pub(crate) const fn fn_name_raw(&self) -> &ImmutableString {
+    pub  const fn fn_name_raw(&self) -> &ImmutableString {
         &self.name
     }
     /// Get the curried arguments.

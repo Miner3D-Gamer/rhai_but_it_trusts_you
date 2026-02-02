@@ -1,3 +1,9 @@
+# What does this fork do?
+
+- Makes many private functions public
+- Makes many private struct fields public
+
+
 Rhai - Embedded Scripting for Rust
 ==================================
 

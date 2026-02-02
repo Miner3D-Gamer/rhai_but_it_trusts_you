@@ -94,9 +94,9 @@ impl CustomExpr {
 pub struct FnCallHashes {
     /// Pre-calculated hash for a script-defined function ([`None`] if native functions only).
     #[cfg(not(feature = "no_function"))]
-    script: Option<u64>,
+  pub   script: Option<u64>,
     /// Pre-calculated hash for a native Rust function with no parameter types.
-    native: u64,
+  pub   native: u64,
 }
 
 impl fmt::Debug for FnCallHashes {
@@ -618,7 +618,7 @@ impl Expr {
     /// `non_qualified` is ignored under `no_module`.
     #[inline]
     #[must_use]
-    pub(crate) fn get_variable_name(&self, _non_qualified: bool) -> Option<&str> {
+    pub  fn get_variable_name(&self, _non_qualified: bool) -> Option<&str> {
         match self {
             #[cfg(not(feature = "no_module"))]
             Self::Variable(x, ..) if _non_qualified && !x.2.is_empty() => None,

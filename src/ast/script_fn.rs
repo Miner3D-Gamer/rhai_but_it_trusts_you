@@ -45,7 +45,7 @@ impl ScriptFuncDef {
     ///
     /// The body of the function is removed, as well as comments (if any).
     #[allow(dead_code)]
-    pub(crate) fn clone_function_signatures(&self) -> Self {
+    pub  fn clone_function_signatures(&self) -> Self {
         Self {
             name: self.name.clone(),
             access: self.access,

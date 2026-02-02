@@ -216,7 +216,7 @@ impl Engine {
     /// Do not use the arguments after this call. If they are needed afterwards, clone them _before_
     /// calling this function.
     #[inline(always)]
-    pub(crate) fn _call_fn(
+    pub  fn _call_fn(
         &self,
         options: CallFnOptions,
         scope: &mut Scope,

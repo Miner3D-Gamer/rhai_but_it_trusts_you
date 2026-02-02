@@ -46,23 +46,23 @@ pub enum OptimizationLevel {
 
 /// Mutable state throughout an optimization pass.
 #[derive(Debug, Clone)]
-struct OptimizerState<'a> {
+pub struct OptimizerState<'a> {
     /// Has the [`AST`] been changed during this pass?
-    is_dirty: bool,
+  pub   is_dirty: bool,
     /// Stack of variables/constants for constants propagation and strict variables checking.
-    variables: Vec<(ImmutableString, Option<Cow<'a, Dynamic>>)>,
+  pub   variables: Vec<(ImmutableString, Option<Cow<'a, Dynamic>>)>,
     /// Activate constants propagation?
-    propagate_constants: bool,
+  pub   propagate_constants: bool,
     /// [`Engine`] instance for eager function evaluation.
-    engine: &'a Engine,
+  pub   engine: &'a Engine,
     /// Optional [`Scope`].
-    scope: Option<&'a Scope<'a>>,
+  pub   scope: Option<&'a Scope<'a>>,
     /// The global runtime state.
-    global: GlobalRuntimeState,
+  pub   global: GlobalRuntimeState,
     /// Function resolution caches.
-    caches: Caches,
+  pub   caches: Caches,
     /// Optimization level.
-    optimization_level: OptimizationLevel,
+   pub   optimization_level: OptimizationLevel,
 }
 
 impl<'a> OptimizerState<'a> {
@@ -1485,7 +1485,7 @@ impl Engine {
     }
 
     /// Optimize a collection of statements and functions into an [`AST`].
-    pub(crate) fn optimize_into_ast(
+    pub  fn optimize_into_ast(
         &self,
         scope: Option<&Scope>,
         statements: StmtBlockContainer,

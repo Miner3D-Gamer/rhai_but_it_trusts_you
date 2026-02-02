@@ -36,9 +36,9 @@ pub type FnCallArgs<'a> = [&'a mut Dynamic];
 /// A type that temporarily stores a mutable reference to a `Dynamic`,
 /// replacing it with a cloned copy.
 #[derive(Debug)]
-struct ArgBackup<'a> {
-    orig_mut: Option<&'a mut Dynamic>,
-    value_copy: Dynamic,
+pub struct ArgBackup<'a> {
+    pub orig_mut: Option<&'a mut Dynamic>,
+    pub value_copy: Dynamic,
 }
 
 impl<'a> ArgBackup<'a> {
@@ -336,7 +336,7 @@ impl Engine {
     /// All function arguments not in the first position are always passed by value and thus consumed.
     ///
     /// **DO NOT** reuse the argument values except for the first `&mut` argument - all others are silently replaced by `()`!
-    pub(crate) fn exec_native_fn_call(
+    pub  fn exec_native_fn_call(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -555,7 +555,7 @@ impl Engine {
     /// All function arguments not in the first position are always passed by value and thus consumed.
     ///
     /// **DO NOT** reuse the argument values except for the first `&mut` argument - all others are silently replaced by `()`!
-    pub(crate) fn exec_fn_call(
+    pub  fn exec_fn_call(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -681,7 +681,7 @@ impl Engine {
 
     /// Evaluate an argument.
     #[inline]
-    pub(crate) fn get_arg_value(
+    pub  fn get_arg_value(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -715,7 +715,7 @@ impl Engine {
 
     /// Call a dot method.
     #[cfg(not(feature = "no_object"))]
-    pub(crate) fn make_method_call(
+    pub  fn make_method_call(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -1057,7 +1057,7 @@ impl Engine {
     }
 
     /// Call a function in normal function-call style.
-    pub(crate) fn make_function_call(
+    pub  fn make_function_call(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -1457,7 +1457,7 @@ impl Engine {
 
     /// Call a namespace-qualified function in normal function-call style.
     #[cfg(not(feature = "no_module"))]
-    pub(crate) fn make_qualified_function_call(
+    pub  fn make_qualified_function_call(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -1662,7 +1662,7 @@ impl Engine {
     }
 
     /// Evaluate a text script in place - used primarily for 'eval'.
-    pub(crate) fn eval_script_expr_in_place(
+    pub  fn eval_script_expr_in_place(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -1708,7 +1708,7 @@ impl Engine {
     ///
     /// This method tries to short-circuit function resolution under Fast Operators mode if the
     /// function call is an operator.
-    pub(crate) fn eval_fn_call_expr(
+    pub  fn eval_fn_call_expr(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,

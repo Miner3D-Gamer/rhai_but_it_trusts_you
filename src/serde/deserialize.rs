@@ -12,7 +12,7 @@ use std::{convert::TryFrom, fmt};
 #[cfg(feature = "decimal")]
 use num_traits::FromPrimitive;
 
-struct DynamicVisitor;
+pub struct DynamicVisitor;
 
 impl<'de> Visitor<'de> for DynamicVisitor {
     type Value = Dynamic;

@@ -25,10 +25,10 @@ pub type SharedGlobalConstants =
 pub struct GlobalRuntimeState {
     /// Names of imported [modules][crate::Module].
     #[cfg(not(feature = "no_module"))]
-    imports: crate::ThinVec<ImmutableString>,
+   pub  imports: crate::ThinVec<ImmutableString>,
     /// Stack of imported [modules][crate::Module].
     #[cfg(not(feature = "no_module"))]
-    modules: crate::ThinVec<crate::SharedModule>,
+  pub   modules: crate::ThinVec<crate::SharedModule>,
 
     /// The current stack of loaded [modules][crate::Module] containing script-defined functions.
     #[cfg(not(feature = "no_function"))]
@@ -72,7 +72,7 @@ pub struct GlobalRuntimeState {
     pub tag: Dynamic,
     /// Debugging interface.
     #[cfg(feature = "debugging")]
-    pub(crate) debugger: Option<Box<super::Debugger>>,
+    pub  debugger: Option<Box<super::Debugger>>,
 }
 
 impl Engine {
@@ -202,7 +202,7 @@ impl GlobalRuntimeState {
     /// Not available under `no_module`.
     #[cfg(not(feature = "no_module"))]
     #[inline]
-    pub(crate) fn may_contain_dynamic_fn(&self, hash_script: u64) -> bool {
+    pub  fn may_contain_dynamic_fn(&self, hash_script: u64) -> bool {
         self.modules
             .iter()
             .any(|m| m.may_contain_dynamic_fn(hash_script))
@@ -277,7 +277,7 @@ impl GlobalRuntimeState {
     #[inline(always)]
     #[must_use]
     #[allow(dead_code)]
-    pub(crate) const fn source_raw(&self) -> Option<&ImmutableString> {
+    pub  const fn source_raw(&self) -> Option<&ImmutableString> {
         self.source.as_ref()
     }
 

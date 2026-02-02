@@ -18,7 +18,7 @@ impl Engine {
     /// (which is the first module in `global_modules`).
     #[inline(always)]
     #[must_use]
-    pub(crate) fn global_namespace_mut(&mut self) -> &mut Module {
+    pub  fn global_namespace_mut(&mut self) -> &mut Module {
         if self.global_modules.is_empty() {
             let mut global_namespace = Module::new();
             global_namespace.set_internal(true);
@@ -799,7 +799,7 @@ impl Engine {
     /// 5) Functions defined in modules `import`-ed by the current script (if any)
     /// 6) Functions in registered sub-modules
     #[allow(dead_code)]
-    pub(crate) fn collect_fn_metadata_impl<T>(
+    pub  fn collect_fn_metadata_impl<T>(
         &self,
         _ctx: Option<&NativeCallContext>,
         mapper: impl Fn(crate::module::FuncInfo) -> Option<T> + Copy,

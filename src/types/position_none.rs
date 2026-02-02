@@ -43,13 +43,13 @@ impl Position {
     }
     /// Advance by one character position.
     #[inline(always)]
-    pub(crate) fn advance(&mut self) {}
+    pub  fn advance(&mut self) {}
     /// Go backwards by one character position.
     #[inline(always)]
-    pub(crate) fn rewind(&mut self) {}
+    pub  fn rewind(&mut self) {}
     /// Advance to the next line.
     #[inline(always)]
-    pub(crate) fn new_line(&mut self) {}
+    pub  fn new_line(&mut self) {}
     /// Is this [`Position`] at the beginning of a line?
     ///
     /// Always returns `false`.

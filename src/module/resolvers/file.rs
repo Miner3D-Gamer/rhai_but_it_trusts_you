@@ -49,18 +49,18 @@ pub const RHAI_SCRIPT_EXTENSION: &str = "rhai";
 #[derive(Debug)]
 pub struct FileModuleResolver {
     /// Base path of the directory holding script files.
-    base_path: Option<PathBuf>,
+  pub   base_path: Option<PathBuf>,
     /// File extension of script files, default `.rhai`.
-    extension: Identifier,
+  pub   extension: Identifier,
     /// Is the cache enabled?
     cache_enabled: bool,
     /// [`Scope`] holding variables for compiling scripts.
-    scope: Scope<'static>,
+   pub  scope: Scope<'static>,
     /// Internal cache of resolved modules.
     ///
     /// The cache is wrapped in interior mutability because [`resolve`][FileModuleResolver::resolve]
     /// is immutable.
-    cache: Locked<BTreeMap<PathBuf, SharedModule>>,
+  pub   cache: Locked<BTreeMap<PathBuf, SharedModule>>,
 }
 
 impl Default for FileModuleResolver {

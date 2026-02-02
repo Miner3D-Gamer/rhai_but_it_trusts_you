@@ -215,7 +215,7 @@ impl Engine {
     /// throughout the script _including_ functions. This allows functions to be optimized based on
     /// dynamic global constants.
     #[inline]
-    pub(crate) fn compile_scripts_with_scope_raw<S: AsRef<str>>(
+    pub  fn compile_scripts_with_scope_raw<S: AsRef<str>>(
         &self,
         scope: Option<&Scope>,
         scripts: impl AsRef<[S]>,

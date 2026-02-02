@@ -258,7 +258,7 @@ impl RhaiFunc {
     /// Get a reference to the shared encapsulated environment of the function definition (if any).
     #[inline]
     #[must_use]
-    pub(crate) fn get_shared_encapsulated_environ(&self) -> Option<&Shared<EncapsulatedEnviron>> {
+    pub  fn get_shared_encapsulated_environ(&self) -> Option<&Shared<EncapsulatedEnviron>> {
         match self {
             Self::Pure { .. }
             | Self::Method { .. }

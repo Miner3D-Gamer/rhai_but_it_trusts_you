@@ -3960,7 +3960,7 @@ impl Engine {
     }
 
     /// Parse a global level expression.
-    pub(crate) fn parse_global_expr(
+    pub  fn parse_global_expr(
         &self,
         mut state: ParseState,
         process_settings: impl FnOnce(&mut ParseSettings),
@@ -4071,7 +4071,7 @@ impl Engine {
 
     /// Run the parser on an input stream, returning an AST.
     #[inline]
-    pub(crate) fn parse(
+    pub  fn parse(
         &self,
         mut state: ParseState,
         #[cfg(not(feature = "no_optimize"))] optimization_level: crate::OptimizationLevel,

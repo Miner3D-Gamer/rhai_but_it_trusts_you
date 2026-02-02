@@ -2866,7 +2866,7 @@ impl Engine {
     /// Tokenize an input text stream with an optional mapping function.
     #[inline]
     #[must_use]
-    pub(crate) fn lex_raw<'a>(
+    pub  fn lex_raw<'a>(
         &'a self,
         inputs: impl IntoIterator<Item = &'a (impl AsRef<str> + 'a)>,
         token_mapper: Option<&'a OnParseTokenCallback>,

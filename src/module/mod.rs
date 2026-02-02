@@ -623,31 +623,31 @@ bitflags! {
 #[derive(Clone)]
 pub struct Module {
     /// ID identifying the module.
-    id: Option<ImmutableString>,
+  pub   id: Option<ImmutableString>,
     /// Module documentation.
     #[cfg(feature = "metadata")]
-    doc: SmartString,
+   pub  doc: SmartString,
     /// Custom types.
     custom_types: CustomTypesCollection,
     /// Sub-modules.
-    modules: BTreeMap<Identifier, SharedModule>,
+  pub   modules: BTreeMap<Identifier, SharedModule>,
     /// [`Module`] variables.
-    variables: BTreeMap<Identifier, Dynamic>,
+  pub   variables: BTreeMap<Identifier, Dynamic>,
     /// Flattened collection of all [`Module`] variables, including those in sub-modules.
     all_variables: Option<StraightHashMap<Dynamic>>,
     /// Functions (both native Rust and scripted).
-    functions: Option<StraightHashMap<(RhaiFunc, Box<FuncMetadata>)>>,
+  pub   functions: Option<StraightHashMap<(RhaiFunc, Box<FuncMetadata>)>>,
     /// Flattened collection of all functions, native Rust and scripted.
     /// including those in sub-modules.
-    all_functions: Option<StraightHashMap<RhaiFunc>>,
+ pub    all_functions: Option<StraightHashMap<RhaiFunc>>,
     /// Bloom filter on native Rust functions (in scripted hash format) that contain [`Dynamic`] parameters.
-    dynamic_functions_filter: BloomFilterU64,
+ pub    dynamic_functions_filter: BloomFilterU64,
     /// Iterator functions, keyed by the type producing the iterator.
-    type_iterators: BTreeMap<TypeId, Shared<FnIterator>>,
+   pub  type_iterators: BTreeMap<TypeId, Shared<FnIterator>>,
     /// Flattened collection of iterator functions, including those in sub-modules.
     all_type_iterators: BTreeMap<TypeId, Shared<FnIterator>>,
     /// Flags.
-    flags: ModuleFlags,
+ pub    flags: ModuleFlags,
 }
 
 impl Default for Module {
@@ -801,7 +801,7 @@ impl Module {
     /// Get the ID of the [`Module`] as an [`Identifier`], if any.
     #[inline(always)]
     #[must_use]
-    pub(crate) const fn id_raw(&self) -> Option<&ImmutableString> {
+    pub  const fn id_raw(&self) -> Option<&ImmutableString> {
         self.id.as_ref()
     }
 
@@ -1135,7 +1135,7 @@ impl Module {
     }
     /// Set whether the [`Module`] is a Rhai internal system module.
     #[inline(always)]
-    pub(crate) fn set_internal(&mut self, value: bool) {
+    pub  fn set_internal(&mut self, value: bool) {
         self.flags.set(ModuleFlags::INTERNAL, value)
     }
     /// Is the [`Module`] a Rhai standard library module?
@@ -1146,7 +1146,7 @@ impl Module {
     }
     /// Set whether the [`Module`] is a Rhai standard library module.
     #[inline(always)]
-    pub(crate) fn set_standard_lib(&mut self, value: bool) {
+    pub  fn set_standard_lib(&mut self, value: bool) {
         self.flags.set(ModuleFlags::STANDARD_LIB, value)
     }
 
@@ -1261,7 +1261,7 @@ impl Module {
     /// Get a namespace-qualified [`Module`] variable as a [`Dynamic`].
     #[cfg(not(feature = "no_module"))]
     #[inline]
-    pub(crate) fn get_qualified_var(&self, hash_var: u64) -> Option<Dynamic> {
+    pub  fn get_qualified_var(&self, hash_var: u64) -> Option<Dynamic> {
         self.all_variables
             .as_ref()
             .and_then(|c| c.get(&hash_var).cloned())
@@ -1354,7 +1354,7 @@ impl Module {
     #[cfg(not(feature = "no_module"))]
     #[inline]
     #[must_use]
-    pub(crate) fn get_sub_modules_mut(&mut self) -> &mut BTreeMap<Identifier, SharedModule> {
+    pub  fn get_sub_modules_mut(&mut self) -> &mut BTreeMap<Identifier, SharedModule> {
         // We must assume that the user has changed the sub-modules
         // (otherwise why take a mutable reference?)
         self.all_functions = None;
@@ -1505,7 +1505,7 @@ impl Module {
     /// Get a registered function's metadata.
     #[inline]
     #[allow(dead_code)]
-    pub(crate) fn get_fn_metadata_mut(&mut self, hash_fn: u64) -> Option<&mut FuncMetadata> {
+    pub  fn get_fn_metadata_mut(&mut self, hash_fn: u64) -> Option<&mut FuncMetadata> {
         self.functions
             .as_mut()
             .and_then(|m| m.get_mut(&hash_fn))
@@ -1908,7 +1908,7 @@ impl Module {
     /// Look up a native Rust function by hash.
     #[inline]
     #[must_use]
-    pub(crate) fn get_fn(&self, hash_native: u64) -> Option<&RhaiFunc> {
+    pub  fn get_fn(&self, hash_native: u64) -> Option<&RhaiFunc> {
         self.functions
             .as_ref()
             .and_then(|m| m.get(&hash_native))
@@ -1920,7 +1920,7 @@ impl Module {
     /// A `true` return value does not automatically imply that the function _must_ exist.
     #[inline(always)]
     #[must_use]
-    pub(crate) const fn may_contain_dynamic_fn(&self, hash_script: u64) -> bool {
+    pub  const fn may_contain_dynamic_fn(&self, hash_script: u64) -> bool {
         !self.dynamic_functions_filter.is_absent(hash_script)
     }
 
@@ -1941,7 +1941,7 @@ impl Module {
     #[cfg(not(feature = "no_module"))]
     #[inline]
     #[must_use]
-    pub(crate) fn get_qualified_fn(&self, hash_qualified_fn: u64) -> Option<&RhaiFunc> {
+    pub  fn get_qualified_fn(&self, hash_qualified_fn: u64) -> Option<&RhaiFunc> {
         self.all_functions
             .as_ref()
             .and_then(|m| m.get(&hash_qualified_fn))
@@ -2064,7 +2064,7 @@ impl Module {
     }
 
     /// Merge another [`Module`] into this [`Module`] based on a filter predicate.
-    pub(crate) fn merge_filtered(
+    pub  fn merge_filtered(
         &mut self,
         other: &Self,
         _filter: impl Fn(FnNamespace, FnAccess, bool, &str, usize) -> bool + Copy,
@@ -2115,7 +2115,7 @@ impl Module {
     /// Filter out the functions, retaining only some script-defined functions based on a filter predicate.
     #[cfg(not(feature = "no_function"))]
     #[inline]
-    pub(crate) fn retain_script_functions(
+    pub  fn retain_script_functions(
         &mut self,
         filter: impl Fn(FnNamespace, FnAccess, &str, usize) -> bool,
     ) -> &mut Self {
@@ -2158,7 +2158,7 @@ impl Module {
     }
     /// Get an iterator to the sub-modules in the [`Module`].
     #[inline(always)]
-    pub(crate) fn iter_sub_modules_raw(
+    pub  fn iter_sub_modules_raw(
         &self,
     ) -> impl Iterator<Item = (&Identifier, &SharedModule)> {
         self.modules.iter()
@@ -2171,21 +2171,21 @@ impl Module {
     }
     /// Get an iterator to the variables in the [`Module`].
     #[inline(always)]
-    pub(crate) fn iter_var_raw(&self) -> impl Iterator<Item = (&Identifier, &Dynamic)> {
+    pub  fn iter_var_raw(&self) -> impl Iterator<Item = (&Identifier, &Dynamic)> {
         self.variables.iter()
     }
 
     /// Get an iterator to the custom types in the [`Module`].
     #[inline(always)]
     #[allow(dead_code)]
-    pub(crate) fn iter_custom_types(&self) -> impl Iterator<Item = (&str, &CustomTypeInfo)> {
+    pub  fn iter_custom_types(&self) -> impl Iterator<Item = (&str, &CustomTypeInfo)> {
         self.custom_types.iter()
     }
 
     /// Get an iterator to the functions in the [`Module`].
     #[inline]
     #[allow(dead_code)]
-    pub(crate) fn iter_fn(&self) -> impl Iterator<Item = (&RhaiFunc, &FuncMetadata)> {
+    pub  fn iter_fn(&self) -> impl Iterator<Item = (&RhaiFunc, &FuncMetadata)> {
         self.functions
             .iter()
             .flat_map(StraightHashMap::values)
@@ -2202,7 +2202,7 @@ impl Module {
     /// 5) Shared reference to function definition [`ScriptFuncDef`][crate::ast::ScriptFuncDef].
     #[cfg(not(feature = "no_function"))]
     #[inline]
-    pub(crate) fn iter_script_fn(
+    pub  fn iter_script_fn(
         &self,
     ) -> impl Iterator<
         Item = (
@@ -2682,14 +2682,14 @@ impl Module {
     #[cfg(not(feature = "no_module"))]
     #[inline]
     #[must_use]
-    pub(crate) fn get_qualified_iter(&self, id: TypeId) -> Option<&FnIterator> {
+    pub  fn get_qualified_iter(&self, id: TypeId) -> Option<&FnIterator> {
         self.all_type_iterators.get(&id).map(|f| &**f)
     }
 
     /// Get the specified type iterator.
     #[inline]
     #[must_use]
-    pub(crate) fn get_iter(&self, id: TypeId) -> Option<&FnIterator> {
+    pub  fn get_iter(&self, id: TypeId) -> Option<&FnIterator> {
         self.type_iterators.get(&id).map(|f| &**f)
     }
 }

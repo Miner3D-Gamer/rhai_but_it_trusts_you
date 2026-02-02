@@ -312,7 +312,7 @@ pub fn derive_custom_type(input: TokenStream) -> TokenStream {
 /// Macro to automatically expose a Rust function, type-def or use statement as `pub` when under the
 /// `internals` feature.
 ///
-/// If the `internals` feature is not enabled, the item will be exposed as `pub(crate)`.
+/// If the `internals` feature is not enabled, the item will be exposed as `pub `.
 ///
 /// In order to avoid confusion, there must not be any visibility modifier on the item.
 #[proc_macro_attribute]
@@ -350,7 +350,7 @@ pub fn expose_under_internals(args: TokenStream, input: TokenStream) -> TokenStr
             #item
         };
 
-        item.vis = syn::parse2(quote! { pub(crate) }).unwrap();
+        item.vis = syn::parse2(quote! { pub  }).unwrap();
 
         result.extend(quote! {
             #[cfg(not(feature = "internals"))]
@@ -381,7 +381,7 @@ pub fn expose_under_internals(args: TokenStream, input: TokenStream) -> TokenStr
             #item
         };
 
-        item.vis = syn::parse2(quote! { pub(crate) }).unwrap();
+        item.vis = syn::parse2(quote! { pub  }).unwrap();
 
         result.extend(quote! {
             #[cfg(not(feature = "internals"))]
@@ -412,7 +412,7 @@ pub fn expose_under_internals(args: TokenStream, input: TokenStream) -> TokenStr
             #item
         };
 
-        item.vis = syn::parse2(quote! { pub(crate) }).unwrap();
+        item.vis = syn::parse2(quote! { pub  }).unwrap();
 
         result.extend(quote! {
             #[cfg(not(feature = "internals"))]

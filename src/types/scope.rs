@@ -61,16 +61,16 @@ pub const MIN_SCOPE_ENTRIES: usize = 8;
 #[derive(Debug, Hash, Default)]
 pub struct Scope<'a> {
     /// Current value of the entry.
-    values: ThinVec<Dynamic>,
+  pub   values: ThinVec<Dynamic>,
     /// Name of the entry.
-    names: ThinVec<ImmutableString>,
+   pub  names: ThinVec<ImmutableString>,
     /// Aliases of the entry.
     ///
     /// This `Vec` is not filled until needed because aliases are used rarely
     /// (only for `export` statements).
-    aliases: ThinVec<StaticVec<ImmutableString>>,
+ pub    aliases: ThinVec<StaticVec<ImmutableString>>,
     /// Phantom to keep the lifetime parameter in order not to break existing code.
-    dummy: PhantomData<&'a ()>,
+ pub    dummy: PhantomData<&'a ()>,
 }
 
 impl fmt::Display for Scope<'_> {
@@ -348,7 +348,7 @@ impl Scope<'_> {
     }
     /// Add (push) a new entry with a [`Dynamic`] value to the [`Scope`].
     #[inline]
-    pub(crate) fn push_entry(
+    pub  fn push_entry(
         &mut self,
         name: ImmutableString,
         access: AccessMode,
@@ -405,7 +405,7 @@ impl Scope<'_> {
     /// Remove the last entry from the [`Scope`] and return it.
     #[inline(always)]
     #[allow(dead_code)]
-    pub(crate) fn pop_entry(&mut self) -> Option<(ImmutableString, Dynamic, Vec<ImmutableString>)> {
+    pub  fn pop_entry(&mut self) -> Option<(ImmutableString, Dynamic, Vec<ImmutableString>)> {
         self.values.pop().map(|value| {
             (
                 self.names.pop().unwrap(),
@@ -472,7 +472,7 @@ impl Scope<'_> {
     /// Find an entry in the [`Scope`], starting from the last.
     #[inline]
     #[must_use]
-    pub(crate) fn search(&self, name: &str) -> Option<usize> {
+    pub  fn search(&self, name: &str) -> Option<usize> {
         self.names
             .iter()
             .rev() // Always search a Scope in reverse order
@@ -715,7 +715,7 @@ impl Scope<'_> {
     /// Panics if the index is out of bounds.
     #[inline(always)]
     #[allow(dead_code)]
-    pub(crate) fn get_entry_by_index(&self, index: usize) -> (&str, &Dynamic, &[ImmutableString]) {
+    pub  fn get_entry_by_index(&self, index: usize) -> (&str, &Dynamic, &[ImmutableString]) {
         (
             &self.names[index],
             &self.values[index],
@@ -801,7 +801,7 @@ impl Scope<'_> {
     ///
     /// Panics if the index is out of bounds.
     #[inline(always)]
-    pub(crate) fn get_mut_by_index(&mut self, index: usize) -> &mut Dynamic {
+    pub  fn get_mut_by_index(&mut self, index: usize) -> &mut Dynamic {
         &mut self.values[index]
     }
     /// Add an alias to an entry in the [`Scope`].
@@ -811,7 +811,7 @@ impl Scope<'_> {
     /// Panics if the index is out of bounds.
     #[cfg(not(feature = "no_module"))]
     #[inline]
-    pub(crate) fn add_alias_by_index(&mut self, index: usize, alias: ImmutableString) -> &mut Self {
+    pub  fn add_alias_by_index(&mut self, index: usize, alias: ImmutableString) -> &mut Self {
         if self.aliases.len() <= index {
             self.aliases.resize(index + 1, <_>::default());
         }
@@ -913,7 +913,7 @@ impl Scope<'_> {
     /// Get an iterator to entries in the [`Scope`].
     /// Shared values are not expanded.
     #[inline]
-    pub(crate) fn iter_inner(&self) -> impl Iterator<Item = (&ImmutableString, bool, &Dynamic)> {
+    pub  fn iter_inner(&self) -> impl Iterator<Item = (&ImmutableString, bool, &Dynamic)> {
         self.names
             .iter()
             .zip(self.values.iter())
@@ -922,7 +922,7 @@ impl Scope<'_> {
     /// Get a reverse iterator to entries in the [`Scope`].
     /// Shared values are not expanded.
     #[inline]
-    pub(crate) fn iter_rev_inner(
+    pub  fn iter_rev_inner(
         &self,
     ) -> impl Iterator<Item = (&ImmutableString, bool, &Dynamic)> {
         self.names
@@ -938,7 +938,7 @@ impl Scope<'_> {
     /// Panics if the range is out of bounds.
     #[inline]
     #[allow(dead_code)]
-    pub(crate) fn remove_range(&mut self, start: usize, len: usize) {
+    pub  fn remove_range(&mut self, start: usize, len: usize) {
         self.values.drain(start..start + len).for_each(|_| {});
         self.names.drain(start..start + len).for_each(|_| {});
 

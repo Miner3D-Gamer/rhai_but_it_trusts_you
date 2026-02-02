@@ -25,19 +25,19 @@ use std::{
 #[derive(Clone, PartialEq, Hash)]
 pub struct OpAssignment {
     /// Hash of the op-assignment call.
-    hash_op_assign: u64,
+ pub    hash_op_assign: u64,
     /// Hash of the underlying operator call (for fallback).
-    hash_op: u64,
+  pub   hash_op: u64,
     /// Op-assignment operator.
-    op_assign: Token,
+  pub   op_assign: Token,
     /// Syntax of op-assignment operator.
-    op_assign_syntax: &'static str,
+ pub    op_assign_syntax: &'static str,
     /// Underlying operator.
-    op: Token,
+  pub   op: Token,
     /// Syntax of underlying operator.
     op_syntax: &'static str,
     /// [Position] of the op-assignment operator.
-    pos: Position,
+   pub  pos: Position,
 }
 
 impl OpAssignment {

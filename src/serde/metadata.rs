@@ -20,7 +20,7 @@ enum FnType {
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct FnParam<'a> {
+pub struct FnParam<'a> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
     #[serde(rename = "type", default, skip_serializing_if = "Option::is_none")]
@@ -29,7 +29,7 @@ struct FnParam<'a> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct CustomTypeMetadata<'a> {
+pub struct CustomTypeMetadata<'a> {
     pub type_name: &'a str,
     pub display_name: &'a str,
     #[serde(default, skip_serializing_if = "ThinVec::is_empty")]
@@ -63,7 +63,7 @@ impl<'a> From<(&'a str, &'a CustomTypeInfo)> for CustomTypeMetadata<'a> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct FnMetadata<'a> {
+pub struct FnMetadata<'a> {
     pub base_hash: u64,
     pub full_hash: u64,
     #[cfg(not(feature = "no_module"))]
@@ -180,7 +180,7 @@ impl<'a> From<(&'a RhaiFunc, &'a FuncMetadata)> for FnMetadata<'a> {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct ModuleMetadata<'a> {
+pub struct ModuleMetadata<'a> {
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub modules: BTreeMap<&'a str, Self>,
     #[serde(default, skip_serializing_if = "ThinVec::is_empty")]

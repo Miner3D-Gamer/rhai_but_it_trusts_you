@@ -73,15 +73,15 @@ pub type LockGuardMut<'a, T> = std::sync::RwLockWriteGuard<'a, T>;
 #[derive(Debug)]
 pub struct NativeCallContext<'a> {
     /// The current [`Engine`].
-    engine: &'a Engine,
+   pub  engine: &'a Engine,
     /// Name of function called.
-    fn_name: &'a str,
+   pub  fn_name: &'a str,
     /// Function source, if any.
-    source: Option<&'a str>,
+   pub  source: Option<&'a str>,
     /// The current [`GlobalRuntimeState`], if any.
-    global: &'a GlobalRuntimeState,
+  pub   global: &'a GlobalRuntimeState,
     /// [Position] of the function call.
-    pos: Position,
+  pub   pos: Position,
 }
 
 /// _(internals)_ Context of a native Rust function call, intended for persistence.

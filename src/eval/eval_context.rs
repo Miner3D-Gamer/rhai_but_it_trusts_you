@@ -16,13 +16,13 @@ use std::prelude::v1::*;
 #[allow(dead_code)]
 pub struct EvalContext<'a, 's, 'ps, 'g, 'c, 't> {
     /// The current [`Engine`].
-    engine: &'a Engine,
+  pub   engine: &'a Engine,
     /// The current [`GlobalRuntimeState`].
-    global: &'g mut GlobalRuntimeState,
+   pub  global: &'g mut GlobalRuntimeState,
     /// The current [caches][Caches], if available.
-    caches: &'c mut Caches,
+  pub   caches: &'c mut Caches,
     /// The current [`Scope`].
-    scope: &'s mut Scope<'ps>,
+   pub  scope: &'s mut Scope<'ps>,
     /// The current bound `this` pointer, if any.
     this_ptr: Option<&'t mut Dynamic>,
 }

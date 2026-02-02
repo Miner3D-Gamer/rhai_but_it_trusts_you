@@ -20,18 +20,18 @@ use std::{
 #[derive(Clone)]
 pub struct AST {
     /// Source of the [`AST`].
-    source: Option<ImmutableString>,
+  pub   source: Option<ImmutableString>,
     /// Global statements.
-    body: ThinVec<Stmt>,
+  pub   body: ThinVec<Stmt>,
     /// Script-defined functions.
     #[cfg(not(feature = "no_function"))]
-    lib: crate::SharedModule,
+   pub  lib: crate::SharedModule,
     /// Embedded module resolver, if any.
     #[cfg(not(feature = "no_module"))]
-    pub(crate) resolver: Option<crate::Shared<crate::module::resolvers::StaticModuleResolver>>,
+    pub  resolver: Option<crate::Shared<crate::module::resolvers::StaticModuleResolver>>,
     /// [`AST`] documentation.
     #[cfg(feature = "metadata")]
-    pub(crate) doc: crate::SmartString,
+    pub  doc: crate::SmartString,
 }
 
 impl Default for AST {
@@ -142,7 +142,7 @@ impl AST {
     /// Get a reference to the source.
     #[inline(always)]
     #[must_use]
-    pub(crate) const fn source_raw(&self) -> Option<&ImmutableString> {
+    pub  const fn source_raw(&self) -> Option<&ImmutableString> {
         self.source.as_ref()
     }
     /// Set the source.
@@ -189,7 +189,7 @@ impl AST {
     #[inline(always)]
     #[must_use]
     #[allow(dead_code)]
-    pub(crate) fn statements_mut(&mut self) -> &mut ThinVec<Stmt> {
+    pub  fn statements_mut(&mut self) -> &mut ThinVec<Stmt> {
         &mut self.body
     }
     /// Does this [`AST`] contain script-defined functions?
@@ -778,7 +778,7 @@ impl AST {
     }
     /// Recursively walk the [`AST`], including function bodies (if any).
     /// Return `false` from the callback to terminate the walk.
-    pub(crate) fn _walk(&self, on_node: &mut (impl FnMut(&[ASTNode]) -> bool + ?Sized)) -> bool {
+    pub  fn _walk(&self, on_node: &mut (impl FnMut(&[ASTNode]) -> bool + ?Sized)) -> bool {
         let path = &mut Vec::new();
 
         for stmt in self.statements() {

@@ -18,7 +18,7 @@ pub struct Foo {
     #[rhai_type(get = get_bar)]
     pub bar: INT,
     #[rhai_type(name = "boo", readonly)]
-    pub(crate) baz: String,
+    pub  baz: String,
     #[rhai_type(set = Self::set_qux)]
     pub qux: Vec<INT>,
     pub maybe: Option<INT>,

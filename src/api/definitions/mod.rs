@@ -130,7 +130,7 @@ impl Definitions<'_> {
     /// Get the configuration.
     #[inline(always)]
     #[must_use]
-    pub(crate) const fn config(&self) -> &DefinitionsConfig {
+    pub  const fn config(&self) -> &DefinitionsConfig {
         &self.config
     }
 }

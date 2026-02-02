@@ -63,8 +63,8 @@ macro_rules! defer {
 /// Run custom restoration logic upon the end of scope.
 #[must_use]
 pub struct Deferred<'a, T: ?Sized, R: FnOnce(&mut T)> {
-    lock: &'a mut T,
-    defer: Option<R>,
+   pub  lock: &'a mut T,
+  pub   defer: Option<R>,
 }
 
 impl<'a, T: ?Sized, R: FnOnce(&mut T)> Deferred<'a, T, R> {

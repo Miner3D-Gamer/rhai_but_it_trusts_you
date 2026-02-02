@@ -228,7 +228,7 @@ impl Engine {
     #[cfg(feature = "metadata")]
     #[inline]
     #[must_use]
-    pub(crate) fn format_param_type<'a>(&'a self, name: &'a str) -> std::borrow::Cow<'a, str> {
+    pub  fn format_param_type<'a>(&'a self, name: &'a str) -> std::borrow::Cow<'a, str> {
         if let Some(x) = name.strip_prefix("&mut ") {
             return match self.format_param_type(x) {
                 r if r == x => name.into(),
@@ -243,7 +243,7 @@ impl Engine {
     #[cold]
     #[inline(never)]
     #[must_use]
-    pub(crate) fn make_type_mismatch_err<T>(&self, typ: &str, pos: Position) -> RhaiError {
+    pub  fn make_type_mismatch_err<T>(&self, typ: &str, pos: Position) -> RhaiError {
         ERR::ErrorMismatchDataType(self.map_type_name(type_name::<T>()).into(), typ.into(), pos)
             .into()
     }

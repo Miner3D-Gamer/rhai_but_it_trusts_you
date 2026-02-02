@@ -219,7 +219,7 @@ impl Engine {
     }
     /// Evaluate an [`AST`] with own scope, returning the result value or an error.
     #[inline]
-    pub(crate) fn eval_ast_with_scope_raw(
+    pub  fn eval_ast_with_scope_raw(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -365,7 +365,7 @@ impl Engine {
             })
     }
     /// Evaluate a function call with the [`Engine`].
-    pub(crate) fn eval_fn_call_with_arguments<T: Variant + Clone>(
+    pub  fn eval_fn_call_with_arguments<T: Variant + Clone>(
         &self,
         fn_name: impl AsRef<str>,
         args: &mut [&mut Dynamic],

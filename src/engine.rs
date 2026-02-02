@@ -87,69 +87,69 @@ pub const NAMESPACE_SEPARATOR: &str = Token::DoubleColon.literal_syntax();
 /// ```
 pub struct Engine {
     /// A collection of all modules loaded into the global namespace of the Engine.
-    pub(crate) global_modules: Vec<SharedModule>,
+    pub  global_modules: Vec<SharedModule>,
     /// A collection of all sub-modules directly loaded into the Engine.
     #[cfg(not(feature = "no_module"))]
-    pub(crate) global_sub_modules: std::collections::BTreeMap<Identifier, SharedModule>,
+    pub  global_sub_modules: std::collections::BTreeMap<Identifier, SharedModule>,
 
     /// A module resolution service.
     #[cfg(not(feature = "no_module"))]
-    pub(crate) module_resolver: Option<Box<dyn crate::ModuleResolver>>,
+    pub  module_resolver: Option<Box<dyn crate::ModuleResolver>>,
 
     /// Strings interner.
-    pub(crate) interned_strings: Option<Locked<StringsInterner>>,
+    pub  interned_strings: Option<Locked<StringsInterner>>,
 
     /// A set of symbols to disable.
-    pub(crate) disabled_symbols: BTreeSet<Identifier>,
+    pub  disabled_symbols: BTreeSet<Identifier>,
     /// A map containing custom keywords and precedence to recognize.
     #[cfg(not(feature = "no_custom_syntax"))]
-    pub(crate) custom_keywords: std::collections::BTreeMap<Identifier, Option<Precedence>>,
+    pub  custom_keywords: std::collections::BTreeMap<Identifier, Option<Precedence>>,
     /// Custom syntax.
     #[cfg(not(feature = "no_custom_syntax"))]
-    pub(crate) custom_syntax:
+    pub  custom_syntax:
         std::collections::BTreeMap<Identifier, Box<crate::api::custom_syntax::CustomSyntax>>,
 
     /// Callback closure for filtering variable definition.
-    pub(crate) def_var_filter: Option<Box<OnDefVarCallback>>,
+    pub  def_var_filter: Option<Box<OnDefVarCallback>>,
     /// Callback closure for resolving variable access.
-    pub(crate) resolve_var: Option<Box<OnVarCallback>>,
+    pub  resolve_var: Option<Box<OnVarCallback>>,
     /// Callback closure to remap tokens during parsing.
-    pub(crate) token_mapper: Option<Box<OnParseTokenCallback>>,
+    pub  token_mapper: Option<Box<OnParseTokenCallback>>,
 
     /// Callback closure when a [`Array`][crate::Array] property accessed does not exist.
     #[cfg(not(feature = "no_index"))]
     #[cfg(feature = "internals")]
-    pub(crate) invalid_array_index: Option<Box<crate::func::native::OnInvalidArrayIndexCallback>>,
+    pub  invalid_array_index: Option<Box<crate::func::native::OnInvalidArrayIndexCallback>>,
     /// Callback closure when a [`Map`][crate::Map] property accessed does not exist.
     #[cfg(not(feature = "no_object"))]
     #[cfg(feature = "internals")]
-    pub(crate) missing_map_property: Option<Box<crate::func::native::OnMissingMapPropertyCallback>>,
+    pub  missing_map_property: Option<Box<crate::func::native::OnMissingMapPropertyCallback>>,
 
     /// Callback closure for implementing the `print` command.
-    pub(crate) print: Option<Box<OnPrintCallback>>,
+    pub  print: Option<Box<OnPrintCallback>>,
     /// Callback closure for implementing the `debug` command.
-    pub(crate) debug: Option<Box<OnDebugCallback>>,
+    pub  debug: Option<Box<OnDebugCallback>>,
     /// Callback closure for progress reporting.
     #[cfg(not(feature = "unchecked"))]
-    pub(crate) progress: Option<Box<crate::func::native::OnProgressCallback>>,
+    pub  progress: Option<Box<crate::func::native::OnProgressCallback>>,
 
     /// Language options.
-    pub(crate) options: LangOptions,
+    pub  options: LangOptions,
 
     /// Default value for the custom state.
-    pub(crate) def_tag: Dynamic,
+    pub  def_tag: Dynamic,
 
     /// Script optimization level.
     #[cfg(not(feature = "no_optimize"))]
-    pub(crate) optimization_level: crate::OptimizationLevel,
+    pub  optimization_level: crate::OptimizationLevel,
 
     /// Max limits.
     #[cfg(not(feature = "unchecked"))]
-    pub(crate) limits: crate::api::limits::Limits,
+    pub  limits: crate::api::limits::Limits,
 
     /// Callback closure for debugging.
     #[cfg(feature = "debugging")]
-    pub(crate) debugger_interface: Option<(
+    pub  debugger_interface: Option<(
         Box<crate::eval::OnDebuggingInit>,
         Box<crate::eval::OnDebuggerCallback>,
     )>,
@@ -354,7 +354,7 @@ impl Engine {
     #[cfg(not(feature = "no_object"))]
     #[inline]
     #[must_use]
-    pub(crate) fn get_interned_getter(
+    pub  fn get_interned_getter(
         &self,
         text: impl AsRef<str> + Into<ImmutableString>,
     ) -> ImmutableString {
@@ -373,7 +373,7 @@ impl Engine {
     #[cfg(not(feature = "no_object"))]
     #[inline]
     #[must_use]
-    pub(crate) fn get_interned_setter(
+    pub  fn get_interned_setter(
         &self,
         text: impl AsRef<str> + Into<ImmutableString>,
     ) -> ImmutableString {
@@ -399,7 +399,7 @@ impl Engine {
     #[cfg(feature = "debugging")]
     #[inline(always)]
     #[must_use]
-    pub(crate) const fn is_debugger_registered(&self) -> bool {
+    pub  const fn is_debugger_registered(&self) -> bool {
         self.debugger_interface.is_some()
     }
 }

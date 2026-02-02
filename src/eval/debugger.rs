@@ -250,7 +250,7 @@ impl fmt::Display for CallStackFrame {
 #[derive(Debug, Clone, Hash)]
 pub struct Debugger {
     /// The current status command.
-    pub(crate) status: DebuggerStatus,
+    pub  status: DebuggerStatus,
     /// The current set of break-points.
     break_points: Vec<BreakPoint>,
     /// The current function call stack.
@@ -279,12 +279,12 @@ impl Debugger {
     }
     /// Rewind the function call stack to a particular depth.
     #[inline(always)]
-    pub(crate) fn rewind_call_stack(&mut self, len: usize) {
+    pub  fn rewind_call_stack(&mut self, len: usize) {
         self.call_stack.truncate(len);
     }
     /// Add a new frame to the function call stack.
     #[inline(always)]
-    pub(crate) fn push_call_stack_frame(
+    pub  fn push_call_stack_frame(
         &mut self,
         fn_name: ImmutableString,
         args: impl IntoIterator<Item = Dynamic>,
@@ -299,7 +299,7 @@ impl Debugger {
         });
     }
     /// Change the current status to [`CONTINUE`][DebuggerStatus::CONTINUE] and return the previous status.
-    pub(crate) fn clear_status_if(
+    pub  fn clear_status_if(
         &mut self,
         filter: impl FnOnce(&DebuggerStatus) -> bool,
     ) -> Option<DebuggerStatus> {
@@ -312,7 +312,7 @@ impl Debugger {
     /// Override the status of this [`Debugger`] if the current status is
     /// [`CONTINUE`][DebuggerStatus::CONTINUE].
     #[inline(always)]
-    pub(crate) fn reset_status(&mut self, status: DebuggerStatus) {
+    pub  fn reset_status(&mut self, status: DebuggerStatus) {
         if self.status == DebuggerStatus::CONTINUE {
             self.status = status;
         }
@@ -398,7 +398,7 @@ impl Debugger {
 impl Engine {
     /// Run the debugger callback if there is a debugging interface registered.
     #[inline(always)]
-    pub(crate) fn dbg<'a>(
+    pub  fn dbg<'a>(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -421,7 +421,7 @@ impl Engine {
     ///
     /// It is up to the [`Engine`] to reactivate the debugger.
     #[inline(always)]
-    pub(crate) fn dbg_reset<'a>(
+    pub  fn dbg_reset<'a>(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -442,7 +442,7 @@ impl Engine {
     ///
     /// It is up to the [`Engine`] to reactivate the debugger.
     #[inline]
-    pub(crate) fn dbg_reset_raw<'a>(
+    pub  fn dbg_reset_raw<'a>(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -489,7 +489,7 @@ impl Engine {
     ///
     /// It is up to the [`Engine`] to reactivate the debugger.
     #[inline]
-    pub(crate) fn dbg_raw(
+    pub  fn dbg_raw(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,

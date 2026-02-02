@@ -384,7 +384,7 @@ impl EvalAltResult {
     #[cfg(not(feature = "no_object"))]
     #[cold]
     #[inline(never)]
-    pub(crate) fn dump_fields(&self, map: &mut crate::Map) {
+    pub  fn dump_fields(&self, map: &mut crate::Map) {
         map.insert(
             "error".into(),
             format!("{self:?}")
@@ -588,7 +588,7 @@ impl EvalAltResult {
     #[cold]
     #[inline(never)]
     #[must_use]
-    pub(crate) fn fill_position(mut self: Box<Self>, new_position: Position) -> Box<Self> {
+    pub  fn fill_position(mut self: Box<Self>, new_position: Position) -> Box<Self> {
         if self.position().is_none() {
             self.set_position(new_position);
         }

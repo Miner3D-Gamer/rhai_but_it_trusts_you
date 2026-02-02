@@ -507,7 +507,7 @@ impl<'de> Deserializer<'de> for DynamicDeserializer<'de> {
 
 /// `SeqAccess` implementation for arrays.
 #[cfg(not(feature = "no_index"))]
-struct IterateDynamicArray<'de, ITER: Iterator<Item = &'de Dynamic>> {
+pub struct IterateDynamicArray<'de, ITER: Iterator<Item = &'de Dynamic>> {
     /// Iterator for a stream of [`Dynamic`][crate::Dynamic] values.
     iter: ITER,
 }
@@ -540,7 +540,7 @@ impl<'de, ITER: Iterator<Item = &'de Dynamic>> serde::de::SeqAccess<'de>
 
 /// `MapAccess` implementation for maps.
 #[cfg(not(feature = "no_object"))]
-struct IterateMap<'de, K: Iterator<Item = &'de str>, V: Iterator<Item = &'de Dynamic>> {
+pub struct IterateMap<'de, K: Iterator<Item = &'de str>, V: Iterator<Item = &'de Dynamic>> {
     // Iterator for a stream of [`Dynamic`][crate::Dynamic] keys.
     keys: K,
     // Iterator for a stream of [`Dynamic`][crate::Dynamic] values.
@@ -583,7 +583,7 @@ impl<'de, K: Iterator<Item = &'de str>, V: Iterator<Item = &'de Dynamic>> serde:
 }
 
 #[cfg(not(feature = "no_object"))]
-struct EnumDeserializer<'de> {
+pub struct EnumDeserializer<'de> {
     tag: &'de str,
     content: DynamicDeserializer<'de>,
 }

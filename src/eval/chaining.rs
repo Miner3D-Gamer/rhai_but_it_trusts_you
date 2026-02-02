@@ -469,7 +469,7 @@ impl Engine {
     }
 
     /// Evaluate a dot/index chain.
-    pub(crate) fn eval_dot_index_chain(
+    pub  fn eval_dot_index_chain(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,

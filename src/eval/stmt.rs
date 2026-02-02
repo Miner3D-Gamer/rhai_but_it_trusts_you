@@ -23,7 +23,7 @@ impl Engine {
     }
 
     /// Evaluate a statements block.
-    pub(crate) fn eval_stmt_block(
+    pub  fn eval_stmt_block(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -105,7 +105,7 @@ impl Engine {
     }
 
     /// Evaluate an op-assignment statement.
-    pub(crate) fn eval_op_assignment(
+    pub  fn eval_op_assignment(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -254,7 +254,7 @@ impl Engine {
     }
 
     /// Evaluate a statement.
-    pub(crate) fn eval_stmt(
+    pub  fn eval_stmt(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
@@ -1030,7 +1030,7 @@ impl Engine {
     /// Evaluate a list of statements with no `this` pointer.
     /// This is commonly used to evaluate a list of statements in an [`AST`][crate::AST] or a script function body.
     #[inline(always)]
-    pub(crate) fn eval_global_statements(
+    pub  fn eval_global_statements(
         &self,
         global: &mut GlobalRuntimeState,
         caches: &mut Caches,
