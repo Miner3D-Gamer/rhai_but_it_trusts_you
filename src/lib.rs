@@ -126,7 +126,7 @@ mod parser;
 pub mod serde;
 mod tests;
 mod tokenizer;
-mod types;
+pub mod types;
 
 /// Error encountered when parsing a script.
 type PERR = ParseErrorType;
