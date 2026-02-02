@@ -1,14 +1,5 @@
 //! Module defining script expressions.
 
-use super::{ASTFlags, ASTNode, Ident, Stmt, StmtBlock};
-use crate::engine::KEYWORD_FN_PTR;
-use crate::eval::GlobalRuntimeState;
-use crate::tokenizer::Token;
-use crate::types::dynamic::Union;
-use crate::{
-    calc_fn_hash, Dynamic, FnArgsVec, FnPtr, Identifier, ImmutableString, Position, SmartString,
-    StaticVec, ThinVec, INT,
-};
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
 use std::{
@@ -19,6 +10,14 @@ use std::{
     iter::once,
     mem,
     num::{NonZeroU8, NonZeroUsize},
+};
+
+use super::{ASTFlags, ASTNode, Ident, Stmt, StmtBlock};
+use crate::{
+    calc_fn_hash, engine::KEYWORD_FN_PTR, eval::GlobalRuntimeState,
+    tokenizer::Token, types::dynamic::Union, Dynamic, FnArgsVec, FnPtr,
+    Identifier, ImmutableString, Position, SmartString, StaticVec, ThinVec,
+    INT,
 };
 
 /// _(internals)_ A binary expression.
@@ -94,9 +93,9 @@ impl CustomExpr {
 pub struct FnCallHashes {
     /// Pre-calculated hash for a script-defined function ([`None`] if native functions only).
     #[cfg(not(feature = "no_function"))]
-  pub   script: Option<u64>,
+    pub script: Option<u64>,
     /// Pre-calculated hash for a native Rust function with no parameter types.
-  pub   native: u64,
+    pub native: u64,
 }
 
 impl fmt::Debug for FnCallHashes {
@@ -105,7 +104,9 @@ impl fmt::Debug for FnCallHashes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         #[cfg(not(feature = "no_function"))]
         return match self.script {
-            Some(script) if script == self.native => fmt::Debug::fmt(&self.native, f),
+            Some(script) if script == self.native => {
+                fmt::Debug::fmt(&self.native, f)
+            }
             Some(script) => write!(f, "({script}, {})", self.native),
             None => write!(f, "{} (native only)", self.native),
         };
@@ -294,7 +295,8 @@ pub enum Expr {
     Variable(
         #[cfg(not(feature = "no_module"))]
         Box<(Option<NonZeroUsize>, ImmutableString, super::Namespace, u64)>,
-        #[cfg(feature = "no_module")] Box<(Option<NonZeroUsize>, ImmutableString)>,
+        #[cfg(feature = "no_module")]
+        Box<(Option<NonZeroUsize>, ImmutableString)>,
         Option<NonZeroU8>,
         Position,
     ),
@@ -302,11 +304,7 @@ pub enum Expr {
     ThisPtr(Position),
     /// Property access - ((getter, hash), (setter, hash), prop)
     Property(
-        Box<(
-            (ImmutableString, u64),
-            (ImmutableString, u64),
-            ImmutableString,
-        )>,
+        Box<((ImmutableString, u64), (ImmutableString, u64), ImmutableString)>,
         Position,
     ),
     /// xxx `.` method `(` expr `,` ... `)`
@@ -373,9 +371,7 @@ impl fmt::Debug for Expr {
             }
             Self::Map(x, ..) => {
                 f.write_str("Map")?;
-                f.debug_map()
-                    .entries(x.0.iter().map(|(k, v)| (k, v)))
-                    .finish()
+                f.debug_map().entries(x.0.iter().map(|(k, v)| (k, v))).finish()
             }
             Self::ThisPtr(..) => f.debug_struct("ThisPtr").finish(),
             Self::Variable(x, i, ..) => {
@@ -394,13 +390,18 @@ impl fmt::Debug for Expr {
                 if let Some(n) = x.2.index {
                     write!(f, " #{n}")?;
                 }
-                if let Some(n) = i.map_or_else(|| x.0, |n| NonZeroUsize::new(n.get() as usize)) {
+                if let Some(n) = i.map_or_else(
+                    || x.0,
+                    |n| NonZeroUsize::new(n.get() as usize),
+                ) {
                     write!(f, " #{n}")?;
                 }
                 f.write_str(")")
             }
             Self::Property(x, ..) => write!(f, "Property({})", x.2),
-            Self::MethodCall(x, ..) => f.debug_tuple("MethodCall").field(x).finish(),
+            Self::MethodCall(x, ..) => {
+                f.debug_tuple("MethodCall").field(x).finish()
+            }
             Self::Stmt(x) => {
                 let pos = x.span();
                 if !pos.is_none() {
@@ -441,7 +442,10 @@ impl fmt::Debug for Expr {
                     Self::And(..) => "And",
                     Self::Or(..) => "Or",
                     Self::Coalesce(..) => "Coalesce",
-                    expr => unreachable!("`And`, `Or` or `Coalesce` expected but gets {:?}", expr),
+                    expr => unreachable!(
+                        "`And`, `Or` or `Coalesce` expected but gets {:?}",
+                        expr
+                    ),
                 };
 
                 if !pos.is_none() {
@@ -468,7 +472,10 @@ impl Expr {
     /// Returns [`None`] if the expression is not a literal constant.
     #[inline]
     #[must_use]
-    pub fn get_literal_value(&self, global: Option<&GlobalRuntimeState>) -> Option<Dynamic> {
+    pub fn get_literal_value(
+        &self,
+        global: Option<&GlobalRuntimeState>,
+    ) -> Option<Dynamic> {
         Some(match self {
             Self::DynamicConstant(x, ..) => {
                 let mut _value = x.as_ref().clone();
@@ -495,7 +502,9 @@ impl Expr {
             #[cfg(not(feature = "no_index"))]
             Self::Array(x, ..) if self.is_constant() => {
                 let mut arr = crate::Array::with_capacity(x.len());
-                arr.extend(x.iter().map(|v| v.get_literal_value(global).unwrap()));
+                arr.extend(
+                    x.iter().map(|v| v.get_literal_value(global).unwrap()),
+                );
                 Dynamic::from_array(arr)
             }
 
@@ -504,7 +513,8 @@ impl Expr {
                 let mut map = x.1.clone();
 
                 for (k, v) in &x.0 {
-                    *map.get_mut(k.as_str()).unwrap() = v.get_literal_value(global).unwrap();
+                    *map.get_mut(k.as_str()).unwrap() =
+                        v.get_literal_value(global).unwrap();
                 }
 
                 Dynamic::from_map(map)
@@ -525,17 +535,23 @@ impl Expr {
             Self::FnCall(x, ..) if x.is_qualified() => return None,
 
             // Function call
-            Self::FnCall(x, ..) if x.args.len() == 1 && x.name == KEYWORD_FN_PTR => {
+            Self::FnCall(x, ..)
+                if x.args.len() == 1 && x.name == KEYWORD_FN_PTR =>
+            {
                 match x.args[0] {
-                    Self::StringConstant(ref s, ..) => FnPtr::new(s.clone()).ok()?.into(),
+                    Self::StringConstant(ref s, ..) => {
+                        FnPtr::new(s.clone()).ok()?.into()
+                    }
                     _ => return None,
                 }
             }
 
             // Binary operator call
             Self::FnCall(x, ..) if x.args.len() == 2 => {
-                pub const OP_EXCLUSIVE_RANGE: &str = Token::ExclusiveRange.literal_syntax();
-                pub const OP_INCLUSIVE_RANGE: &str = Token::InclusiveRange.literal_syntax();
+                pub const OP_EXCLUSIVE_RANGE: &str =
+                    Token::ExclusiveRange.literal_syntax();
+                pub const OP_INCLUSIVE_RANGE: &str =
+                    Token::InclusiveRange.literal_syntax();
 
                 match x.name.as_str() {
                     // x..y
@@ -544,12 +560,14 @@ impl Expr {
                             Self::IntegerConstant(ref start, ..),
                             Self::IntegerConstant(ref end, ..),
                         ) => (*start..*end).into(),
-                        (Self::IntegerConstant(ref start, ..), Self::Unit(..)) => {
-                            (*start..INT::MAX).into()
-                        }
-                        (Self::Unit(..), Self::IntegerConstant(ref start, ..)) => {
-                            (0..*start).into()
-                        }
+                        (
+                            Self::IntegerConstant(ref start, ..),
+                            Self::Unit(..),
+                        ) => (*start..INT::MAX).into(),
+                        (
+                            Self::Unit(..),
+                            Self::IntegerConstant(ref start, ..),
+                        ) => (0..*start).into(),
                         _ => return None,
                     },
                     // x..=y
@@ -558,12 +576,14 @@ impl Expr {
                             Self::IntegerConstant(ref start, ..),
                             Self::IntegerConstant(ref end, ..),
                         ) => (*start..=*end).into(),
-                        (Self::IntegerConstant(ref start, ..), Self::Unit(..)) => {
-                            (*start..=INT::MAX).into()
-                        }
-                        (Self::Unit(..), Self::IntegerConstant(ref start, ..)) => {
-                            (0..=*start).into()
-                        }
+                        (
+                            Self::IntegerConstant(ref start, ..),
+                            Self::Unit(..),
+                        ) => (*start..=INT::MAX).into(),
+                        (
+                            Self::Unit(..),
+                            Self::IntegerConstant(ref start, ..),
+                        ) => (0..=*start).into(),
                         _ => return None,
                     },
                     _ => return None,
@@ -585,24 +605,35 @@ impl Expr {
             Union::Int(i, ..) => Self::IntegerConstant(i, pos),
 
             #[cfg(feature = "decimal")]
-            Union::Decimal(value, ..) => Self::DynamicConstant(Box::new((*value).into()), pos),
+            Union::Decimal(value, ..) => {
+                Self::DynamicConstant(Box::new((*value).into()), pos)
+            }
 
             #[cfg(not(feature = "no_float"))]
             Union::Float(f, ..) => Self::FloatConstant(f, pos),
 
             #[cfg(not(feature = "no_index"))]
-            Union::Array(a, ..) => Self::DynamicConstant(Box::new((*a).into()), pos),
+            Union::Array(a, ..) => {
+                Self::DynamicConstant(Box::new((*a).into()), pos)
+            }
 
             #[cfg(not(feature = "no_object"))]
-            Union::Map(m, ..) => Self::DynamicConstant(Box::new((*m).into()), pos),
+            Union::Map(m, ..) => {
+                Self::DynamicConstant(Box::new((*m).into()), pos)
+            }
 
             Union::FnPtr(f, ..) if !f.is_curried() => Self::FnCall(
                 FnCallExpr {
                     #[cfg(not(feature = "no_module"))]
                     namespace: super::Namespace::NONE,
                     name: KEYWORD_FN_PTR.into(),
-                    hashes: FnCallHashes::from_hash(calc_fn_hash(None, f.fn_name(), 1)),
-                    args: once(Self::StringConstant(f.fn_name().into(), pos)).collect(),
+                    hashes: FnCallHashes::from_hash(calc_fn_hash(
+                        None,
+                        f.fn_name(),
+                        1,
+                    )),
+                    args: once(Self::StringConstant(f.fn_name().into(), pos))
+                        .collect(),
                     capture_parent_scope: false,
                     op_token: None,
                 }
@@ -618,7 +649,7 @@ impl Expr {
     /// `non_qualified` is ignored under `no_module`.
     #[inline]
     #[must_use]
-    pub  fn get_variable_name(&self, _non_qualified: bool) -> Option<&str> {
+    pub fn get_variable_name(&self, _non_qualified: bool) -> Option<&str> {
         match self {
             #[cfg(not(feature = "no_module"))]
             Self::Variable(x, ..) if _non_qualified && !x.2.is_empty() => None,
@@ -708,7 +739,9 @@ impl Expr {
                 }
             }
 
-            Self::And(x, ..) | Self::Or(x, ..) | Self::Coalesce(x, ..) => x[0].start_position(),
+            Self::And(x, ..) | Self::Or(x, ..) | Self::Coalesce(x, ..) => {
+                x[0].start_position()
+            }
 
             Self::Index(x, ..) | Self::Dot(x, ..) => x.lhs.start_position(),
 
@@ -759,7 +792,9 @@ impl Expr {
     #[must_use]
     pub fn is_pure(&self) -> bool {
         match self {
-            Self::InterpolatedString(x, ..) | Self::Array(x, ..) => x.iter().all(Self::is_pure),
+            Self::InterpolatedString(x, ..) | Self::Array(x, ..) => {
+                x.iter().all(Self::is_pure)
+            }
 
             Self::Map(x, ..) => x.0.iter().map(|(.., v)| v).all(Self::is_pure),
 
@@ -795,9 +830,13 @@ impl Expr {
             | Self::StringConstant(..)
             | Self::Unit(..) => true,
 
-            Self::InterpolatedString(x, ..) | Self::Array(x, ..) => x.iter().all(Self::is_constant),
+            Self::InterpolatedString(x, ..) | Self::Array(x, ..) => {
+                x.iter().all(Self::is_constant)
+            }
 
-            Self::Map(x, ..) => x.0.iter().map(|(.., expr)| expr).all(Self::is_constant),
+            Self::Map(x, ..) => {
+                x.0.iter().map(|(.., expr)| expr).all(Self::is_constant)
+            }
 
             _ => false,
         }
@@ -843,7 +882,10 @@ impl Expr {
 
             Self::Variable(..) => matches!(
                 token,
-                Token::LeftParen | Token::Unit | Token::Bang | Token::DoubleColon
+                Token::LeftParen
+                    | Token::Unit
+                    | Token::Bang
+                    | Token::DoubleColon
             ),
 
             Self::Property(..) => matches!(token, Token::LeftParen),

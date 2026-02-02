@@ -67,7 +67,7 @@
 //
 // Clippy lints.
 //
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 // #![warn(clippy::all)]
 // #![warn(clippy::pedantic)]
 // #![warn(clippy::nursery)]

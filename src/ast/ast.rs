@@ -1,7 +1,5 @@
 //! Module defining the AST (abstract syntax tree).
 
-use super::{ASTFlags, Expr, FnAccess, Stmt};
-use crate::{expose_under_internals, Dynamic, FnNamespace, ImmutableString, Position, ThinVec};
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
 use std::{
@@ -12,6 +10,12 @@ use std::{
     ptr,
 };
 
+use super::{ASTFlags, Expr, FnAccess, Stmt};
+use crate::{
+    expose_under_internals, Dynamic, FnNamespace, ImmutableString, Position,
+    ThinVec,
+};
+
 /// Compiled AST (abstract syntax tree) of a Rhai script.
 ///
 /// # Thread Safety
@@ -20,18 +24,19 @@ use std::{
 #[derive(Clone)]
 pub struct AST {
     /// Source of the [`AST`].
-  pub   source: Option<ImmutableString>,
+    pub source: Option<ImmutableString>,
     /// Global statements.
-  pub   body: ThinVec<Stmt>,
+    pub body: ThinVec<Stmt>,
     /// Script-defined functions.
     #[cfg(not(feature = "no_function"))]
-   pub  lib: crate::SharedModule,
+    pub lib: crate::SharedModule,
     /// Embedded module resolver, if any.
     #[cfg(not(feature = "no_module"))]
-    pub  resolver: Option<crate::Shared<crate::module::resolvers::StaticModuleResolver>>,
+    pub resolver:
+        Option<crate::Shared<crate::module::resolvers::StaticModuleResolver>>,
     /// [`AST`] documentation.
     #[cfg(feature = "metadata")]
-    pub  doc: crate::SmartString,
+    pub doc: crate::SmartString,
 }
 
 impl Default for AST {
@@ -73,7 +78,9 @@ impl AST {
     #[must_use]
     fn new(
         statements: impl IntoIterator<Item = Stmt>,
-        #[cfg(not(feature = "no_function"))] functions: impl Into<crate::SharedModule>,
+        #[cfg(not(feature = "no_function"))] functions: impl Into<
+            crate::SharedModule,
+        >,
     ) -> Self {
         Self {
             source: None,
@@ -93,7 +100,9 @@ impl AST {
     #[must_use]
     fn new_with_source(
         statements: impl IntoIterator<Item = Stmt>,
-        #[cfg(not(feature = "no_function"))] functions: impl Into<crate::SharedModule>,
+        #[cfg(not(feature = "no_function"))] functions: impl Into<
+            crate::SharedModule,
+        >,
         source: impl Into<ImmutableString>,
     ) -> Self {
         let mut ast = Self::new(
@@ -142,12 +151,15 @@ impl AST {
     /// Get a reference to the source.
     #[inline(always)]
     #[must_use]
-    pub  const fn source_raw(&self) -> Option<&ImmutableString> {
+    pub const fn source_raw(&self) -> Option<&ImmutableString> {
         self.source.as_ref()
     }
     /// Set the source.
     #[inline]
-    pub fn set_source(&mut self, source: impl Into<ImmutableString>) -> &mut Self {
+    pub fn set_source(
+        &mut self,
+        source: impl Into<ImmutableString>,
+    ) -> &mut Self {
         let source = source.into();
 
         #[cfg(not(feature = "no_function"))]
@@ -189,7 +201,7 @@ impl AST {
     #[inline(always)]
     #[must_use]
     #[allow(dead_code)]
-    pub  fn statements_mut(&mut self) -> &mut ThinVec<Stmt> {
+    pub fn statements_mut(&mut self) -> &mut ThinVec<Stmt> {
         &mut self.body
     }
     /// Does this [`AST`] contain script-defined functions?
@@ -222,7 +234,8 @@ impl AST {
     #[must_use]
     pub const fn resolver(
         &self,
-    ) -> Option<&crate::Shared<crate::module::resolvers::StaticModuleResolver>> {
+    ) -> Option<&crate::Shared<crate::module::resolvers::StaticModuleResolver>>
+    {
         self.resolver.as_ref()
     }
     /// Clone the [`AST`]'s functions into a new [`AST`].
@@ -588,8 +601,11 @@ impl AST {
             (_, true) => (),
             (true, false) => self.resolver.clone_from(&other.resolver),
             (false, false) => {
-                let resolver = crate::func::shared_make_mut(self.resolver.as_mut().unwrap());
-                let other_resolver = crate::func::shared_take_or_clone(other.resolver.unwrap());
+                let resolver = crate::func::shared_make_mut(
+                    self.resolver.as_mut().unwrap(),
+                );
+                let other_resolver =
+                    crate::func::shared_take_or_clone(other.resolver.unwrap());
                 for (k, v) in other_resolver {
                     resolver.insert(k, crate::func::shared_take_or_clone(v));
                 }
@@ -604,7 +620,8 @@ impl AST {
 
         #[cfg(not(feature = "no_function"))]
         if !other.lib.is_empty() {
-            crate::func::shared_make_mut(&mut self.lib).merge_filtered(&other.lib, &_filter);
+            crate::func::shared_make_mut(&mut self.lib)
+                .merge_filtered(&other.lib, &_filter);
         }
 
         #[cfg(feature = "metadata")]
@@ -633,10 +650,12 @@ impl AST {
     ///
     /// let engine = Engine::new();
     ///
-    /// let mut ast = engine.compile(r#"
+    /// let mut ast = engine.compile(
+    ///     r#"
     ///     fn foo(n) { n + 1 }
     ///     fn bar() { print("hello"); }
-    /// "#)?;
+    /// "#,
+    /// )?;
     ///
     /// // Remove all functions except 'foo(..)'
     /// ast.retain_functions(|_, _, name, params| name == "foo" && params == 1);
@@ -651,7 +670,8 @@ impl AST {
         filter: impl Fn(FnNamespace, FnAccess, &str, usize) -> bool,
     ) -> &mut Self {
         if self.has_functions() {
-            crate::func::shared_make_mut(&mut self.lib).retain_script_functions(filter);
+            crate::func::shared_make_mut(&mut self.lib)
+                .retain_script_functions(filter);
         }
         self
     }
@@ -662,7 +682,9 @@ impl AST {
     #[expose_under_internals]
     #[cfg(not(feature = "no_function"))]
     #[inline]
-    fn iter_fn_def(&self) -> impl Iterator<Item = &crate::Shared<super::ScriptFuncDef>> {
+    fn iter_fn_def(
+        &self,
+    ) -> impl Iterator<Item = &crate::Shared<super::ScriptFuncDef>> {
         self.lib.iter_script_fn().map(|(.., fn_def)| fn_def)
     }
     /// Iterate through all function definitions.
@@ -670,10 +692,10 @@ impl AST {
     /// Not available under `no_function`.
     #[cfg(not(feature = "no_function"))]
     #[inline]
-    pub fn iter_functions(&self) -> impl Iterator<Item = super::ScriptFnMetadata<'_>> {
-        self.lib
-            .iter_script_fn()
-            .map(|(.., fn_def)| fn_def.as_ref().into())
+    pub fn iter_functions(
+        &self,
+    ) -> impl Iterator<Item = super::ScriptFnMetadata<'_>> {
+        self.lib.iter_script_fn().map(|(.., fn_def)| fn_def.as_ref().into())
     }
     /// Clear all function definitions in the [`AST`].
     ///
@@ -706,7 +728,7 @@ impl AST {
     /// let engine = Engine::new();
     ///
     /// let ast = engine.compile(
-    /// "
+    ///     "
     ///     const A = 40 + 2;   // constant that optimizes into a literal
     ///     let b = 123;        // literal variable
     ///     const B = b * A;    // non-literal constant
@@ -718,24 +740,28 @@ impl AST {
     ///
     ///         print(Z);       // make sure the block is not optimized away
     ///     }
-    /// ")?;
+    /// ",
+    /// )?;
     ///
-    /// let mut iter = ast.iter_literal_variables(true, false)
-    ///                   .map(|(name, is_const, value)| (name, is_const, value.as_int().unwrap()));
+    /// let mut iter = ast.iter_literal_variables(true, false).map(
+    ///     |(name, is_const, value)| (name, is_const, value.as_int().unwrap()),
+    /// );
     ///
     /// # #[cfg(not(feature = "no_optimize"))]
     /// assert_eq!(iter.next(), Some(("A", true, 42)));
     /// assert_eq!(iter.next(), Some(("C", true, 999)));
     /// assert_eq!(iter.next(), None);
     ///
-    /// let mut iter = ast.iter_literal_variables(false, true)
-    ///                   .map(|(name, is_const, value)| (name, is_const, value.as_int().unwrap()));
+    /// let mut iter = ast.iter_literal_variables(false, true).map(
+    ///     |(name, is_const, value)| (name, is_const, value.as_int().unwrap()),
+    /// );
     ///
     /// assert_eq!(iter.next(), Some(("b", false, 123)));
     /// assert_eq!(iter.next(), None);
     ///
-    /// let mut iter = ast.iter_literal_variables(true, true)
-    ///                   .map(|(name, is_const, value)| (name, is_const, value.as_int().unwrap()));
+    /// let mut iter = ast.iter_literal_variables(true, true).map(
+    ///     |(name, is_const, value)| (name, is_const, value.as_int().unwrap()),
+    /// );
     ///
     /// # #[cfg(not(feature = "no_optimize"))]
     /// assert_eq!(iter.next(), Some(("A", true, 42)));
@@ -758,12 +784,19 @@ impl AST {
     ) -> impl Iterator<Item = (&str, bool, Dynamic)> {
         self.statements().iter().filter_map(move |stmt| match stmt {
             Stmt::Var(x, options, ..)
-                if options.intersects(ASTFlags::CONSTANT) && include_constants
-                    || !options.intersects(ASTFlags::CONSTANT) && include_variables =>
+                if options.intersects(ASTFlags::CONSTANT)
+                    && include_constants
+                    || !options.intersects(ASTFlags::CONSTANT)
+                        && include_variables =>
             {
                 let (name, expr, ..) = &**x;
-                expr.get_literal_value(None)
-                    .map(|value| (name.as_str(), options.intersects(ASTFlags::CONSTANT), value))
+                expr.get_literal_value(None).map(|value| {
+                    (
+                        name.as_str(),
+                        options.intersects(ASTFlags::CONSTANT),
+                        value,
+                    )
+                })
             }
             _ => None,
         })
@@ -773,12 +806,18 @@ impl AST {
     /// Exported under the `internals` feature only.
     #[cfg(feature = "internals")]
     #[inline(always)]
-    pub fn walk(&self, on_node: &mut (impl FnMut(&[ASTNode]) -> bool + ?Sized)) -> bool {
+    pub fn walk(
+        &self,
+        on_node: &mut (impl FnMut(&[ASTNode]) -> bool + ?Sized),
+    ) -> bool {
         self._walk(on_node)
     }
     /// Recursively walk the [`AST`], including function bodies (if any).
     /// Return `false` from the callback to terminate the walk.
-    pub  fn _walk(&self, on_node: &mut (impl FnMut(&[ASTNode]) -> bool + ?Sized)) -> bool {
+    pub fn _walk(
+        &self,
+        on_node: &mut (impl FnMut(&[ASTNode]) -> bool + ?Sized),
+    ) -> bool {
         let path = &mut Vec::new();
 
         for stmt in self.statements() {

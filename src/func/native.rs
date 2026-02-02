@@ -1,18 +1,21 @@
 //! Module defining interfaces to native-Rust functions.
 
-use super::call::FnCallArgs;
-use crate::ast::FnCallHashes;
-use crate::eval::{Caches, GlobalRuntimeState};
-use crate::plugin::PluginFunc;
-use crate::tokenizer::{is_valid_function_name, Token, TokenizeState};
-use crate::types::dynamic::Variant;
-use crate::{
-    calc_fn_hash, expose_under_internals, Dynamic, Engine, EvalContext, FnArgsVec, FuncArgs,
-    Position, RhaiResult, RhaiResultOf, StaticVec, VarDefInfo, ERR,
-};
 use std::any::type_name;
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
+
+use super::call::FnCallArgs;
+use crate::{
+    ast::FnCallHashes,
+    calc_fn_hash,
+    eval::{Caches, GlobalRuntimeState},
+    expose_under_internals,
+    plugin::PluginFunc,
+    tokenizer::{is_valid_function_name, Token, TokenizeState},
+    types::dynamic::Variant,
+    Dynamic, Engine, EvalContext, FnArgsVec, FuncArgs, Position, RhaiResult,
+    RhaiResultOf, StaticVec, VarDefInfo, ERR,
+};
 
 /// Trait that maps to `Send + Sync` only under the `sync` feature.
 #[cfg(feature = "sync")]
@@ -41,7 +44,6 @@ pub use alloc::rc::Rc as Shared;
 // While no_std_compat should map std::sync::Arc to alloc::sync::Arc,
 // there appear to be cases where this mapping fails.
 pub use alloc::sync::Arc as Shared;
-
 /// Synchronized shared object.
 #[cfg(not(feature = "sync"))]
 pub use std::cell::RefCell as Locked;
@@ -73,15 +75,15 @@ pub type LockGuardMut<'a, T> = std::sync::RwLockWriteGuard<'a, T>;
 #[derive(Debug)]
 pub struct NativeCallContext<'a> {
     /// The current [`Engine`].
-   pub  engine: &'a Engine,
+    pub engine: &'a Engine,
     /// Name of function called.
-   pub  fn_name: &'a str,
+    pub fn_name: &'a str,
     /// Function source, if any.
-   pub  source: Option<&'a str>,
+    pub source: Option<&'a str>,
     /// The current [`GlobalRuntimeState`], if any.
-  pub   global: &'a GlobalRuntimeState,
+    pub global: &'a GlobalRuntimeState,
     /// [Position] of the function call.
-  pub   pos: Position,
+    pub pos: Position,
 }
 
 /// _(internals)_ Context of a native Rust function call, intended for persistence.
@@ -115,7 +117,10 @@ impl NativeCallContextStore {
     #[deprecated = "This API is NOT deprecated, but it is considered volatile and may change in the future."]
     #[inline(always)]
     #[must_use]
-    pub fn create_context<'a>(&'a self, engine: &'a Engine) -> NativeCallContext<'a> {
+    pub fn create_context<'a>(
+        &'a self,
+        engine: &'a Engine,
+    ) -> NativeCallContext<'a> {
         NativeCallContext::from_stored_data(engine, self)
     }
 }
@@ -185,7 +190,10 @@ impl<'a> NativeCallContext<'a> {
     #[inline]
     #[must_use]
     #[allow(deprecated)]
-    pub fn from_stored_data(engine: &'a Engine, context: &'a NativeCallContextStore) -> Self {
+    pub fn from_stored_data(
+        engine: &'a Engine,
+        context: &'a NativeCallContextStore,
+    ) -> Self {
         Self {
             engine,
             fn_name: &context.fn_name,
@@ -307,12 +315,15 @@ impl<'a> NativeCallContext<'a> {
 
         let args = &mut arg_values.iter_mut().collect::<FnArgsVec<_>>();
 
-        self._call_fn_raw(fn_name, args, false, false, false)
-            .and_then(|result| {
+        self._call_fn_raw(fn_name, args, false, false, false).and_then(
+            |result| {
                 result.try_cast_result().map_err(|r| {
-                    let result_type = self.engine().map_type_name(r.type_name());
+                    let result_type =
+                        self.engine().map_type_name(r.type_name());
                     let cast_type = match type_name::<T>() {
-                        typ if typ.contains("::") => self.engine.map_type_name(typ),
+                        typ if typ.contains("::") => {
+                            self.engine.map_type_name(typ)
+                        }
                         typ => typ,
                     };
                     ERR::ErrorMismatchOutputType(
@@ -322,7 +333,8 @@ impl<'a> NativeCallContext<'a> {
                     )
                     .into()
                 })
-            })
+            },
+        )
     }
     /// Call a registered native Rust function inside the call context with the provided arguments.
     ///
@@ -340,12 +352,15 @@ impl<'a> NativeCallContext<'a> {
 
         let args = &mut arg_values.iter_mut().collect::<FnArgsVec<_>>();
 
-        self._call_fn_raw(fn_name, args, true, false, false)
-            .and_then(|result| {
+        self._call_fn_raw(fn_name, args, true, false, false).and_then(
+            |result| {
                 result.try_cast_result().map_err(|r| {
-                    let result_type = self.engine().map_type_name(r.type_name());
+                    let result_type =
+                        self.engine().map_type_name(r.type_name());
                     let cast_type = match type_name::<T>() {
-                        typ if typ.contains("::") => self.engine.map_type_name(typ),
+                        typ if typ.contains("::") => {
+                            self.engine.map_type_name(typ)
+                        }
                         typ => typ,
                     };
                     ERR::ErrorMismatchOutputType(
@@ -355,7 +370,8 @@ impl<'a> NativeCallContext<'a> {
                     )
                     .into()
                 })
-            })
+            },
+        )
     }
     /// Call a function (native Rust or scripted) inside the call context.
     ///
@@ -389,7 +405,13 @@ impl<'a> NativeCallContext<'a> {
         #[cfg(not(feature = "no_function"))]
         let native_only = native_only && !crate::parser::is_anonymous_fn(name);
 
-        self._call_fn_raw(fn_name, args, native_only, is_ref_mut, is_method_call)
+        self._call_fn_raw(
+            fn_name,
+            args,
+            native_only,
+            is_ref_mut,
+            is_method_call,
+        )
     }
     /// Call a registered native Rust function inside the call context.
     ///
@@ -465,7 +487,9 @@ impl<'a> NativeCallContext<'a> {
                 calc_fn_hash(None, fn_name, args_len),
             ),
             #[cfg(feature = "no_function")]
-            true => FnCallHashes::from_native_only(calc_fn_hash(None, fn_name, args_len)),
+            true => FnCallHashes::from_native_only(calc_fn_hash(
+                None, fn_name, args_len,
+            )),
             _ => FnCallHashes::from_hash(calc_fn_hash(None, fn_name, args_len)),
         };
 
@@ -527,9 +551,9 @@ pub fn shared_try_take<T>(value: Shared<T>) -> Result<T, Shared<T>> {
 #[must_use]
 #[allow(dead_code)]
 pub fn shared_take<T>(value: Shared<T>) -> T {
-    shared_try_take(value)
-        .ok()
-        .unwrap_or_else(|| panic!("`value` is shared (i.e. has outstanding references)"))
+    shared_try_take(value).ok().unwrap_or_else(|| {
+        panic!("`value` is shared (i.e. has outstanding references)")
+    })
 }
 
 /// _(internals)_ Lock a [`Locked`] resource for immutable access.
@@ -618,24 +642,27 @@ pub fn locked_write<T>(value: &Locked<T>) -> Option<LockGuardMut<'_, T>> {
 
 /// General Rust function trait object.
 #[cfg(not(feature = "sync"))]
-pub type FnAny = dyn Fn(Option<NativeCallContext>, &mut FnCallArgs) -> RhaiResult;
+pub type FnAny =
+    dyn Fn(Option<NativeCallContext>, &mut FnCallArgs) -> RhaiResult;
 /// General Rust function trait object.
 #[cfg(feature = "sync")]
-pub type FnAny = dyn Fn(Option<NativeCallContext>, &mut FnCallArgs) -> RhaiResult + Send + Sync;
+pub type FnAny = dyn Fn(Option<NativeCallContext>, &mut FnCallArgs) -> RhaiResult
+    + Send
+    + Sync;
 
 /// Built-in function trait object.
-pub type FnBuiltin = (
-    fn(Option<NativeCallContext>, &mut FnCallArgs) -> RhaiResult,
-    bool,
-);
+pub type FnBuiltin =
+    (fn(Option<NativeCallContext>, &mut FnCallArgs) -> RhaiResult, bool);
 
 /// Function that gets an iterator from a type.
 #[cfg(not(feature = "sync"))]
-pub type FnIterator = dyn Fn(Dynamic) -> Box<dyn Iterator<Item = RhaiResultOf<Dynamic>>>;
+pub type FnIterator =
+    dyn Fn(Dynamic) -> Box<dyn Iterator<Item = RhaiResultOf<Dynamic>>>;
 /// Function that gets an iterator from a type.
 #[cfg(feature = "sync")]
-pub type FnIterator =
-    dyn Fn(Dynamic) -> Box<dyn Iterator<Item = RhaiResultOf<Dynamic>>> + Send + Sync;
+pub type FnIterator = dyn Fn(Dynamic) -> Box<dyn Iterator<Item = RhaiResultOf<Dynamic>>>
+    + Send
+    + Sync;
 
 /// Plugin function trait object.
 #[cfg(not(feature = "sync"))]
@@ -672,17 +699,22 @@ pub type OnDebugCallback = dyn Fn(&str, Option<&str>, Position) + Send + Sync;
 #[cfg(not(feature = "sync"))]
 #[cfg(not(feature = "no_index"))]
 #[cfg(feature = "internals")]
-pub type OnInvalidArrayIndexCallback = dyn for<'a> Fn(
-    &'a mut crate::Array,
-    crate::INT,
-    EvalContext,
-) -> RhaiResultOf<crate::Target<'a>>;
+pub type OnInvalidArrayIndexCallback =
+    dyn for<'a> Fn(
+        &'a mut crate::Array,
+        crate::INT,
+        EvalContext,
+    ) -> RhaiResultOf<crate::Target<'a>>;
 /// Callback function when a property accessed is not found in a [`Map`][crate::Map].
 /// Exported under the `internals` feature only.
 #[cfg(feature = "sync")]
 #[cfg(not(feature = "no_index"))]
 #[cfg(feature = "internals")]
-pub type OnInvalidArrayIndexCallback = dyn for<'a> Fn(&'a mut crate::Array, crate::INT, EvalContext) -> RhaiResultOf<crate::Target<'a>>
+pub type OnInvalidArrayIndexCallback = dyn for<'a> Fn(
+        &'a mut crate::Array,
+        crate::INT,
+        EvalContext,
+    ) -> RhaiResultOf<crate::Target<'a>>
     + Send
     + Sync;
 
@@ -692,34 +724,47 @@ pub type OnInvalidArrayIndexCallback = dyn for<'a> Fn(&'a mut crate::Array, crat
 #[cfg(not(feature = "no_object"))]
 #[cfg(feature = "internals")]
 pub type OnMissingMapPropertyCallback =
-    dyn for<'a> Fn(&'a mut crate::Map, &str, EvalContext) -> RhaiResultOf<crate::eval::Target<'a>>;
+    dyn for<'a> Fn(
+        &'a mut crate::Map,
+        &str,
+        EvalContext,
+    ) -> RhaiResultOf<crate::eval::Target<'a>>;
 /// Callback function when a property accessed is not found in a [`Map`][crate::Map].
 /// Exported under the `internals` feature only.
 #[cfg(feature = "sync")]
 #[cfg(not(feature = "no_object"))]
 #[cfg(feature = "internals")]
-pub type OnMissingMapPropertyCallback = dyn for<'a> Fn(&'a mut crate::Map, &str, EvalContext) -> RhaiResultOf<crate::eval::Target<'a>>
+pub type OnMissingMapPropertyCallback = dyn for<'a> Fn(
+        &'a mut crate::Map,
+        &str,
+        EvalContext,
+    ) -> RhaiResultOf<crate::eval::Target<'a>>
     + Send
     + Sync;
 
 /// Callback function for mapping tokens during parsing.
 #[cfg(not(feature = "sync"))]
-pub type OnParseTokenCallback = dyn Fn(Token, Position, &TokenizeState) -> Token;
+pub type OnParseTokenCallback =
+    dyn Fn(Token, Position, &TokenizeState) -> Token;
 /// Callback function for mapping tokens during parsing.
 #[cfg(feature = "sync")]
-pub type OnParseTokenCallback = dyn Fn(Token, Position, &TokenizeState) -> Token + Send + Sync;
+pub type OnParseTokenCallback =
+    dyn Fn(Token, Position, &TokenizeState) -> Token + Send + Sync;
 
 /// Callback function for variable access.
 #[cfg(not(feature = "sync"))]
-pub type OnVarCallback = dyn Fn(&str, usize, EvalContext) -> RhaiResultOf<Option<Dynamic>>;
+pub type OnVarCallback =
+    dyn Fn(&str, usize, EvalContext) -> RhaiResultOf<Option<Dynamic>>;
 /// Callback function for variable access.
 #[cfg(feature = "sync")]
-pub type OnVarCallback =
-    dyn Fn(&str, usize, EvalContext) -> RhaiResultOf<Option<Dynamic>> + Send + Sync;
+pub type OnVarCallback = dyn Fn(&str, usize, EvalContext) -> RhaiResultOf<Option<Dynamic>>
+    + Send
+    + Sync;
 
 /// Callback function for variable definition.
 #[cfg(not(feature = "sync"))]
-pub type OnDefVarCallback = dyn Fn(bool, VarDefInfo, EvalContext) -> RhaiResultOf<bool>;
+pub type OnDefVarCallback =
+    dyn Fn(bool, VarDefInfo, EvalContext) -> RhaiResultOf<bool>;
 /// Callback function for variable definition.
 #[cfg(feature = "sync")]
 pub type OnDefVarCallback =

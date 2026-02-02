@@ -1,15 +1,20 @@
 //! Serialization of functions metadata.
 #![cfg(feature = "metadata")]
 
-use crate::api::formatting::format_param_type_for_display;
-use crate::func::RhaiFunc;
-use crate::module::{calc_native_fn_hash, FuncMetadata};
-use crate::types::custom_types::CustomTypeInfo;
-use crate::{calc_fn_hash, Engine, FnAccess, SmartString, ThinVec, AST};
-use serde::{Deserialize, Serialize};
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
 use std::{borrow::Cow, cmp::Ordering, collections::BTreeMap};
+
+use serde::{Deserialize, Serialize};
+
+use crate::{
+    api::formatting::format_param_type_for_display,
+    calc_fn_hash,
+    func::RhaiFunc,
+    module::{calc_native_fn_hash, FuncMetadata},
+    types::custom_types::CustomTypeInfo,
+    Engine, FnAccess, SmartString, ThinVec, AST,
+};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,7 +23,9 @@ enum FnType {
     Native,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize,
+)]
 #[serde(rename_all = "camelCase")]
 pub struct FnParam<'a> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -145,7 +152,8 @@ impl<'a> From<(&'a RhaiFunc, &'a FuncMetadata)> for FnMetadata<'a> {
                 .params_info
                 .iter()
                 .map(|s| {
-                    let (name, typ) = s.split_once(':').unwrap_or((s.trim(), ""));
+                    let (name, typ) =
+                        s.split_once(':').unwrap_or((s.trim(), ""));
                     FnParam {
                         name: match name.trim() {
                             "" | "?" | "_" => None,
@@ -153,7 +161,10 @@ impl<'a> From<(&'a RhaiFunc, &'a FuncMetadata)> for FnMetadata<'a> {
                         },
                         typ: match typ.trim() {
                             "" | "?" | "_" => None,
-                            typ => Some(format_param_type_for_display(typ, false).into()),
+                            typ => Some(
+                                format_param_type_for_display(typ, false)
+                                    .into(),
+                            ),
                         },
                     }
                 })
@@ -210,13 +221,12 @@ impl<'a> From<&'a crate::Module> for ModuleMetadata<'a> {
             .map(|(name, m)| (name, m.as_ref().into()))
             .collect();
 
-        let mut custom_types = module
-            .iter_custom_types()
-            .map(Into::into)
-            .collect::<ThinVec<_>>();
+        let mut custom_types =
+            module.iter_custom_types().map(Into::into).collect::<ThinVec<_>>();
         custom_types.sort();
 
-        let mut functions = module.iter_fn().map(Into::into).collect::<ThinVec<_>>();
+        let mut functions =
+            module.iter_fn().map(Into::into).collect::<ThinVec<_>>();
         functions.sort();
 
         Self {
@@ -240,8 +250,10 @@ impl crate::api::definitions::Definitions<'_> {
     /// 5) Functions in standard packages (optional)
     #[inline(always)]
     pub fn json(&self) -> serde_json::Result<String> {
-        self.engine()
-            .gen_metadata_to_json_raw(None, self.config().include_standard_packages)
+        self.engine().gen_metadata_to_json_raw(
+            None,
+            self.config().include_standard_packages,
+        )
     }
 }
 

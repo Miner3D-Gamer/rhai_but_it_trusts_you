@@ -1,28 +1,30 @@
 //! Evaluation context.
 
-use super::{Caches, GlobalRuntimeState};
-use crate::ast::FnCallHashes;
-use crate::tokenizer::{is_valid_function_name, Token};
-use crate::types::dynamic::Variant;
-use crate::{
-    calc_fn_hash, expose_under_internals, Dynamic, Engine, FnArgsVec, FuncArgs, Position,
-    RhaiResult, RhaiResultOf, Scope, StaticVec, ERR,
-};
 use std::any::type_name;
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
+
+use super::{Caches, GlobalRuntimeState};
+use crate::{
+    ast::FnCallHashes,
+    calc_fn_hash, expose_under_internals,
+    tokenizer::{is_valid_function_name, Token},
+    types::dynamic::Variant,
+    Dynamic, Engine, FnArgsVec, FuncArgs, Position, RhaiResult, RhaiResultOf,
+    Scope, StaticVec, ERR,
+};
 
 /// Context of a script evaluation process.
 #[allow(dead_code)]
 pub struct EvalContext<'a, 's, 'ps, 'g, 'c, 't> {
     /// The current [`Engine`].
-  pub   engine: &'a Engine,
+    pub engine: &'a Engine,
     /// The current [`GlobalRuntimeState`].
-   pub  global: &'g mut GlobalRuntimeState,
+    pub global: &'g mut GlobalRuntimeState,
     /// The current [caches][Caches], if available.
-  pub   caches: &'c mut Caches,
+    pub caches: &'c mut Caches,
     /// The current [`Scope`].
-   pub  scope: &'s mut Scope<'ps>,
+    pub scope: &'s mut Scope<'ps>,
     /// The current bound `this` pointer, if any.
     this_ptr: Option<&'t mut Dynamic>,
 }
@@ -149,7 +151,10 @@ impl<'a, 's, 'ps, 'g, 'c, 't> EvalContext<'a, 's, 'ps, 'g, 'c, 't> {
     /// This function is very low level.  It evaluates an expression from an [`AST`][crate::AST].
     #[cfg(not(feature = "no_custom_syntax"))]
     #[inline(always)]
-    pub fn eval_expression_tree(&mut self, expr: &crate::Expression) -> crate::RhaiResult {
+    pub fn eval_expression_tree(
+        &mut self,
+        expr: &crate::Expression,
+    ) -> crate::RhaiResult {
         #[allow(deprecated)]
         self.eval_expression_tree_raw(expr, true)
     }
@@ -186,9 +191,13 @@ impl<'a, 's, 'ps, 'g, 'c, 't> EvalContext<'a, 's, 'ps, 'g, 'c, 't> {
                 stmts.statements(),
                 rewind_scope,
             ),
-            _ => self
-                .engine
-                .eval_expr(self.global, self.caches, self.scope, this_ptr, expr),
+            _ => self.engine.eval_expr(
+                self.global,
+                self.caches,
+                self.scope,
+                this_ptr,
+                expr,
+            ),
         }
     }
 
@@ -230,8 +239,12 @@ impl<'a, 's, 'ps, 'g, 'c, 't> EvalContext<'a, 's, 'ps, 'g, 'c, 't> {
                     typ if typ.contains("::") => engine.map_type_name(typ),
                     typ => typ,
                 };
-                ERR::ErrorMismatchOutputType(cast_type.into(), result_type.into(), Position::NONE)
-                    .into()
+                ERR::ErrorMismatchOutputType(
+                    cast_type.into(),
+                    result_type.into(),
+                    Position::NONE,
+                )
+                .into()
             })
         })
     }
@@ -253,10 +266,11 @@ impl<'a, 's, 'ps, 'g, 'c, 't> EvalContext<'a, 's, 'ps, 'g, 'c, 't> {
 
         let args = &mut arg_values.iter_mut().collect::<FnArgsVec<_>>();
 
-        let is_ref_mut = self.this_ptr.as_deref_mut().map_or(false, |this_ptr| {
-            args.insert(0, this_ptr);
-            true
-        });
+        let is_ref_mut =
+            self.this_ptr.as_deref_mut().map_or(false, |this_ptr| {
+                args.insert(0, this_ptr);
+                true
+            });
 
         _call_fn_raw(
             engine,
@@ -276,8 +290,12 @@ impl<'a, 's, 'ps, 'g, 'c, 't> EvalContext<'a, 's, 'ps, 'g, 'c, 't> {
                     typ if typ.contains("::") => engine.map_type_name(typ),
                     typ => typ,
                 };
-                ERR::ErrorMismatchOutputType(cast_type.into(), result_type.into(), Position::NONE)
-                    .into()
+                ERR::ErrorMismatchOutputType(
+                    cast_type.into(),
+                    result_type.into(),
+                    Position::NONE,
+                )
+                .into()
             })
         })
     }
@@ -412,7 +430,9 @@ fn _call_fn_raw(
             calc_fn_hash(None, fn_name, args_len),
         ),
         #[cfg(feature = "no_function")]
-        true => FnCallHashes::from_native_only(calc_fn_hash(None, fn_name, args_len)),
+        true => FnCallHashes::from_native_only(calc_fn_hash(
+            None, fn_name, args_len,
+        )),
         _ => FnCallHashes::from_hash(calc_fn_hash(None, fn_name, args_len)),
     };
 

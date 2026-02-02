@@ -1,13 +1,15 @@
 //! Module containing error definitions for the evaluation process.
 
-use crate::{Dynamic, ParseErrorType, Position, INT};
-#[cfg(feature = "no_std")]
-use core_error::Error;
 #[cfg(not(feature = "no_std"))]
 use std::error::Error;
 use std::fmt;
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
+
+#[cfg(feature = "no_std")]
+use core_error::Error;
+
+use crate::{Dynamic, ParseErrorType, Position, INT};
 
 /// Evaluation result.
 ///
@@ -131,7 +133,11 @@ pub enum EvalAltResult {
 impl Error for EvalAltResult {}
 
 impl EvalAltResult {
-    fn display(&self, f: &mut fmt::Formatter<'_>, call_src: &str) -> fmt::Result {
+    fn display(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+        call_src: &str,
+    ) -> fmt::Result {
         match self {
             Self::ErrorSystem(s, err) if s.is_empty() => write!(f, "{err}")?,
             Self::ErrorSystem(s, err) => write!(f, "{s}: {err}")?,
@@ -308,10 +314,7 @@ impl EvalAltResult {
     #[inline(never)]
     #[must_use]
     pub const fn is_pseudo_error(&self) -> bool {
-        matches!(
-            self,
-            Self::LoopBreak(..) | Self::Return(..) | Self::Exit(..)
-        )
+        matches!(self, Self::LoopBreak(..) | Self::Return(..) | Self::Exit(..))
     }
     /// Can this error be caught?
     #[cold]
@@ -384,7 +387,7 @@ impl EvalAltResult {
     #[cfg(not(feature = "no_object"))]
     #[cold]
     #[inline(never)]
-    pub  fn dump_fields(&self, map: &mut crate::Map) {
+    pub fn dump_fields(&self, map: &mut crate::Map) {
         map.insert(
             "error".into(),
             format!("{self:?}")
@@ -408,14 +411,16 @@ impl EvalAltResult {
             | Self::ErrorStackOverflow(..)
             | Self::ErrorRuntime(..) => (),
 
-            Self::ErrorFunctionNotFound(f, ..) | Self::ErrorNonPureMethodCallOnConstant(f, ..) => {
+            Self::ErrorFunctionNotFound(f, ..)
+            | Self::ErrorNonPureMethodCallOnConstant(f, ..) => {
                 map.insert("function".into(), f.into());
             }
             Self::ErrorInFunctionCall(f, s, ..) => {
                 map.insert("function".into(), f.into());
                 map.insert("source".into(), s.into());
             }
-            Self::ErrorMismatchDataType(r, a, ..) | Self::ErrorMismatchOutputType(r, a, ..) => {
+            Self::ErrorMismatchDataType(r, a, ..)
+            | Self::ErrorMismatchOutputType(r, a, ..) => {
                 map.insert("requested".into(), r.into());
                 map.insert("actual".into(), a.into());
             }
@@ -453,7 +458,9 @@ impl EvalAltResult {
                 map.insert(
                     "tokens".into(),
                     #[cfg(not(feature = "no_index"))]
-                    Dynamic::from_array(tokens.iter().map(Into::into).collect()),
+                    Dynamic::from_array(
+                        tokens.iter().map(Into::into).collect(),
+                    ),
                     #[cfg(feature = "no_index")]
                     tokens
                         .iter()
@@ -470,9 +477,8 @@ impl EvalAltResult {
     #[inline(never)]
     pub fn unwrap_inner(&self) -> &Self {
         match self {
-            Self::ErrorInFunctionCall(.., err, _) | Self::ErrorInModule(.., err, _) => {
-                err.unwrap_inner()
-            }
+            Self::ErrorInFunctionCall(.., err, _)
+            | Self::ErrorInModule(.., err, _) => err.unwrap_inner(),
             _ => self,
         }
     }
@@ -588,7 +594,10 @@ impl EvalAltResult {
     #[cold]
     #[inline(never)]
     #[must_use]
-    pub  fn fill_position(mut self: Box<Self>, new_position: Position) -> Box<Self> {
+    pub fn fill_position(
+        mut self: Box<Self>,
+        new_position: Position,
+    ) -> Box<Self> {
         if self.position().is_none() {
             self.set_position(new_position);
         }

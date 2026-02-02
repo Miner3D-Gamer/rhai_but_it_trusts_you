@@ -1,12 +1,5 @@
 //! Module defining script statements.
 
-use super::{ASTFlags, ASTNode, BinaryExpr, Expr, FnCallExpr, Ident};
-use crate::engine::{KEYWORD_EVAL, OP_EQUALS};
-use crate::func::StraightHashMap;
-use crate::tokenizer::Token;
-use crate::types::dynamic::Union;
-use crate::types::Span;
-use crate::{calc_fn_hash, Dynamic, FnArgsVec, Position, StaticVec, INT};
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
 use std::{
@@ -18,6 +11,16 @@ use std::{
     ops::{Range, RangeInclusive},
 };
 
+use super::{ASTFlags, ASTNode, BinaryExpr, Expr, FnCallExpr, Ident};
+use crate::{
+    calc_fn_hash,
+    engine::{KEYWORD_EVAL, OP_EQUALS},
+    func::StraightHashMap,
+    tokenizer::Token,
+    types::{dynamic::Union, Span},
+    Dynamic, FnArgsVec, Position, StaticVec, INT,
+};
+
 /// _(internals)_ An op-assignment operator.
 /// Exported under the `internals` feature only.
 ///
@@ -25,19 +28,19 @@ use std::{
 #[derive(Clone, PartialEq, Hash)]
 pub struct OpAssignment {
     /// Hash of the op-assignment call.
- pub    hash_op_assign: u64,
+    pub hash_op_assign: u64,
     /// Hash of the underlying operator call (for fallback).
-  pub   hash_op: u64,
+    pub hash_op: u64,
     /// Op-assignment operator.
-  pub   op_assign: Token,
+    pub op_assign: Token,
     /// Syntax of op-assignment operator.
- pub    op_assign_syntax: &'static str,
+    pub op_assign_syntax: &'static str,
     /// Underlying operator.
-  pub   op: Token,
+    pub op: Token,
     /// Syntax of underlying operator.
     op_syntax: &'static str,
     /// [Position] of the op-assignment operator.
-   pub  pos: Position,
+    pub pos: Position,
 }
 
 impl OpAssignment {
@@ -103,8 +106,9 @@ impl OpAssignment {
     #[must_use]
     #[inline(always)]
     pub fn new_op_assignment(name: &str, pos: Position) -> Self {
-        let op = Token::lookup_symbol_from_syntax(name)
-            .unwrap_or_else(|| panic!("{} is not an op-assignment operator", name));
+        let op = Token::lookup_symbol_from_syntax(name).unwrap_or_else(|| {
+            panic!("{} is not an op-assignment operator", name)
+        });
         Self::new_op_assignment_from_token(op, pos)
     }
     /// Create a new [`OpAssignment`] from a [`Token`].
@@ -113,10 +117,13 @@ impl OpAssignment {
     ///
     /// Panics if the token is not an op-assignment operator.
     #[must_use]
-    pub fn new_op_assignment_from_token(op_assign: Token, pos: Position) -> Self {
-        let op = op_assign
-            .get_base_op_from_assignment()
-            .unwrap_or_else(|| panic!("{:?} is not an op-assignment operator", op_assign));
+    pub fn new_op_assignment_from_token(
+        op_assign: Token,
+        pos: Position,
+    ) -> Self {
+        let op = op_assign.get_base_op_from_assignment().unwrap_or_else(|| {
+            panic!("{:?} is not an op-assignment operator", op_assign)
+        });
 
         let op_assign_syntax = op_assign.literal_syntax();
         let op_syntax = op.literal_syntax();
@@ -139,8 +146,9 @@ impl OpAssignment {
     #[must_use]
     #[inline(always)]
     pub fn new_op_assignment_from_base(name: &str, pos: Position) -> Self {
-        let op = Token::lookup_symbol_from_syntax(name)
-            .unwrap_or_else(|| panic!("{} cannot be converted into an op-operator", name));
+        let op = Token::lookup_symbol_from_syntax(name).unwrap_or_else(|| {
+            panic!("{} cannot be converted into an op-operator", name)
+        });
         Self::new_op_assignment_from_base_token(&op, pos)
     }
     /// Convert a [`Token`] into a new [`OpAssignment`].
@@ -150,10 +158,14 @@ impl OpAssignment {
     /// Panics if the token is cannot be converted into an op-assignment operator.
     #[inline(always)]
     #[must_use]
-    pub fn new_op_assignment_from_base_token(op: &Token, pos: Position) -> Self {
+    pub fn new_op_assignment_from_base_token(
+        op: &Token,
+        pos: Position,
+    ) -> Self {
         Self::new_op_assignment_from_token(
-            op.convert_to_op_assignment()
-                .unwrap_or_else(|| panic!("{:?} cannot be converted into an op-operator", op)),
+            op.convert_to_op_assignment().unwrap_or_else(|| {
+                panic!("{:?} cannot be converted into an op-operator", op)
+            }),
             pos,
         )
     }
@@ -194,8 +206,12 @@ impl fmt::Debug for RangeCase {
     #[inline(never)]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::ExclusiveInt(r, n) => write!(f, "{}..{} => {n}", r.start, r.end),
-            Self::InclusiveInt(r, n) => write!(f, "{}..={} => {n}", *r.start(), *r.end()),
+            Self::ExclusiveInt(r, n) => {
+                write!(f, "{}..{} => {n}", r.start, r.end)
+            }
+            Self::InclusiveInt(r, n) => {
+                write!(f, "{}..={} => {n}", *r.start(), *r.end())
+            }
         }
     }
 }
@@ -278,8 +294,12 @@ impl RangeCase {
         use crate::FLOAT;
 
         match self {
-            Self::ExclusiveInt(r, ..) => ((r.start as FLOAT)..(r.end as FLOAT)).contains(&n),
-            Self::InclusiveInt(r, ..) => ((*r.start() as FLOAT)..=(*r.end() as FLOAT)).contains(&n),
+            Self::ExclusiveInt(r, ..) => {
+                ((r.start as FLOAT)..(r.end as FLOAT)).contains(&n)
+            }
+            Self::InclusiveInt(r, ..) => {
+                ((*r.start() as FLOAT)..=(*r.end() as FLOAT)).contains(&n)
+            }
         }
     }
     /// Is the specified decimal number within this range?
@@ -290,12 +310,12 @@ impl RangeCase {
         use rust_decimal::Decimal;
 
         match self {
-            Self::ExclusiveInt(r, ..) => {
-                (Into::<Decimal>::into(r.start)..Into::<Decimal>::into(r.end)).contains(&n)
-            }
-            Self::InclusiveInt(r, ..) => {
-                (Into::<Decimal>::into(*r.start())..=Into::<Decimal>::into(*r.end())).contains(&n)
-            }
+            Self::ExclusiveInt(r, ..) => (Into::<Decimal>::into(r.start)
+                ..Into::<Decimal>::into(r.end))
+                .contains(&n),
+            Self::InclusiveInt(r, ..) => (Into::<Decimal>::into(*r.start())
+                ..=Into::<Decimal>::into(*r.end()))
+                .contains(&n),
         }
     }
     /// Is the specified range inclusive?
@@ -364,7 +384,8 @@ const STMT_BLOCK_INLINE_SIZE: usize = 8;
 /// hold a statements block, with the assumption that most program blocks would container fewer than
 /// 8 statements, and those that do have a lot more statements.
 #[cfg(not(feature = "no_std"))]
-pub type StmtBlockContainer = smallvec::SmallVec<[Stmt; STMT_BLOCK_INLINE_SIZE]>;
+pub type StmtBlockContainer =
+    smallvec::SmallVec<[Stmt; STMT_BLOCK_INLINE_SIZE]>;
 
 /// _(internals)_ The underlying container type for [`StmtBlock`].
 /// Exported under the `internals` feature only.
@@ -397,8 +418,12 @@ impl StmtBlock {
     }
     /// Create a new [`StmtBlock`].
     #[must_use]
-    pub fn new_with_span(statements: impl IntoIterator<Item = Stmt>, span: Span) -> Self {
-        let mut statements: smallvec::SmallVec<_> = statements.into_iter().collect();
+    pub fn new_with_span(
+        statements: impl IntoIterator<Item = Stmt>,
+        span: Span,
+    ) -> Self {
+        let mut statements: smallvec::SmallVec<_> =
+            statements.into_iter().collect();
         statements.shrink_to_fit();
         Self {
             block: statements,
@@ -465,7 +490,11 @@ impl StmtBlock {
     /// or a default.
     #[inline(always)]
     #[must_use]
-    pub const fn span_or_else(&self, def_start_pos: Position, def_end_pos: Position) -> Span {
+    pub const fn span_or_else(
+        &self,
+        def_start_pos: Position,
+        def_end_pos: Position,
+    ) -> Span {
         Span::new(
             (self.span).start().or_else(def_start_pos),
             (self.span).end().or_else(def_end_pos),
@@ -788,7 +817,10 @@ impl Stmt {
             | Self::For(..)
             | Self::TryCatch(..) => false,
 
-            Self::Var(..) | Self::Assignment(..) | Self::BreakLoop(..) | Self::Return(..) => false,
+            Self::Var(..)
+            | Self::Assignment(..)
+            | Self::BreakLoop(..)
+            | Self::Return(..) => false,
 
             #[cfg(not(feature = "no_module"))]
             Self::Import(..) | Self::Export(..) => false,
@@ -847,10 +879,12 @@ impl Stmt {
             Self::Switch(x, ..) => {
                 let (expr, sw) = &**x;
                 expr.is_pure()
-                    && sw.cases.values().flat_map(|cases| cases.iter()).all(|&c| {
-                        let block = &sw.expressions[c];
-                        block.lhs.is_pure() && block.rhs.is_pure()
-                    })
+                    && sw.cases.values().flat_map(|cases| cases.iter()).all(
+                        |&c| {
+                            let block = &sw.expressions[c];
+                            block.lhs.is_pure() && block.rhs.is_pure()
+                        },
+                    )
                     && sw.ranges.iter().all(|r| {
                         let block = &sw.expressions[r.index()];
                         block.lhs.is_pure() && block.rhs.is_pure()
@@ -860,20 +894,32 @@ impl Stmt {
             }
 
             // Loops that exit can be pure because it can never be infinite.
-            Self::While(x, ..) if matches!(x.expr, Expr::BoolConstant(false, ..)) => true,
-            Self::Do(x, options, ..) if matches!(x.expr, Expr::BoolConstant(..)) => match x.expr {
-                Expr::BoolConstant(cond, ..) if cond == options.intersects(ASTFlags::NEGATED) => {
-                    x.body.iter().all(Self::is_pure)
+            Self::While(x, ..)
+                if matches!(x.expr, Expr::BoolConstant(false, ..)) =>
+            {
+                true
+            }
+            Self::Do(x, options, ..)
+                if matches!(x.expr, Expr::BoolConstant(..)) =>
+            {
+                match x.expr {
+                    Expr::BoolConstant(cond, ..)
+                        if cond == options.intersects(ASTFlags::NEGATED) =>
+                    {
+                        x.body.iter().all(Self::is_pure)
+                    }
+                    _ => false,
                 }
-                _ => false,
-            },
+            }
 
             // Loops are never pure since they can be infinite - and that's a side effect.
             Self::While(..) | Self::Do(..) => false,
 
             // For loops can be pure because if the iterable is pure, it is finite,
             // so infinite loops can never occur.
-            Self::For(x, ..) => x.2.expr.is_pure() && x.2.body.iter().all(Self::is_pure),
+            Self::For(x, ..) => {
+                x.2.expr.is_pure() && x.2.body.iter().all(Self::is_pure)
+            }
 
             Self::Var(..) | Self::Assignment(..) | Self::FnCall(..) => false,
             Self::Block(block, ..) => block.iter().all(Self::is_pure),
