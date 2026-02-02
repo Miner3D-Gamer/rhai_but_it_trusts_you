@@ -1,9 +1,10 @@
 //! Collection of custom types.
 
-use crate::Identifier;
 #[cfg(feature = "no_std")]
 use std::prelude::v1::*;
 use std::{any::type_name, collections::BTreeMap};
+
+use crate::Identifier;
 
 /// _(internals)_ Information for a registered custom type.
 /// Exported under the `internals` feature only.
@@ -32,7 +33,7 @@ pub struct CustomTypeInfo {
 /// _(internals)_ A collection of custom types.
 /// Exported under the `internals` feature only.
 #[derive(Debug, Clone, Hash)]
-pub struct CustomTypesCollection(BTreeMap<Identifier, Box<CustomTypeInfo>>);
+pub struct CustomTypesCollection(pub BTreeMap<Identifier, Box<CustomTypeInfo>>);
 
 impl Default for CustomTypesCollection {
     #[inline(always)]
@@ -54,7 +55,11 @@ impl CustomTypesCollection {
     }
     /// Register a custom type.
     #[inline(always)]
-    pub fn add(&mut self, type_name: impl Into<Identifier>, name: impl Into<Identifier>) {
+    pub fn add(
+        &mut self,
+        type_name: impl Into<Identifier>,
+        name: impl Into<Identifier>,
+    ) {
         let type_name = type_name.into();
         let custom_type = CustomTypeInfo {
             type_name: type_name.clone(),
@@ -112,7 +117,11 @@ impl CustomTypesCollection {
     }
     /// Register a custom type.
     #[inline(always)]
-    pub fn add_raw(&mut self, type_name: impl Into<Identifier>, custom_type: CustomTypeInfo) {
+    pub fn add_raw(
+        &mut self,
+        type_name: impl Into<Identifier>,
+        custom_type: CustomTypeInfo,
+    ) {
         self.0.insert(type_name.into(), custom_type.into());
     }
     /// Find a custom type.
