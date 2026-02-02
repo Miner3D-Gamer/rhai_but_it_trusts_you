@@ -650,7 +650,7 @@ impl FuncRegistration {
 bitflags! {
     /// Bit-flags containing all status for [`Module`].
     #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
-    struct ModuleFlags: u8 {
+   pub  struct ModuleFlags: u8 {
         /// Is the [`Module`] internal?
         const INTERNAL = 0b0000_0001;
         /// Is the [`Module`] part of a standard library?
@@ -678,7 +678,7 @@ pub struct Module {
     /// [`Module`] variables.
     pub variables: BTreeMap<Identifier, Dynamic>,
     /// Flattened collection of all [`Module`] variables, including those in sub-modules.
-    all_variables: Option<StraightHashMap<Dynamic>>,
+    pub all_variables: Option<StraightHashMap<Dynamic>>,
     /// Functions (both native Rust and scripted).
     pub functions: Option<StraightHashMap<(RhaiFunc, Box<FuncMetadata>)>>,
     /// Flattened collection of all functions, native Rust and scripted.
